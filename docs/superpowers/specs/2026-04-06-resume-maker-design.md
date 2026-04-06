@@ -73,7 +73,12 @@ Vite + React + TypeScript 单页应用，纯前端，无后端依赖。数据存
 
 1. `remark-parse` — 将 Markdown 解析为 MDAST
 2. `remark-rehype` — 转为 HAST（HTML AST）
-3. 自定义 `rehype` 插件 — 根据层级约定为 HTML 元素添加语义化 CSS 类名（`.resume-name`, `.resume-contact`, `.resume-section` 等）
+3. 自定义 `rehype` 插件 — 根据层级约定为 HTML 元素添加语义化 CSS 类名：
+   - `h1` → `.resume-name`
+   - `blockquote` → `.resume-contact`
+   - `h2` → `.resume-section-title`
+   - `h3` → `.resume-entry-title`
+   - `h2` 后到下一个 `h2` 之间的内容包裹在 `.resume-section` 容器中
 4. `rehype-react` — 渲染为 React 组件
 
 这样用户写的是纯 Markdown，零学习成本，结构语义在 AST 层处理。
@@ -92,7 +97,7 @@ Vite + React + TypeScript 单页应用，纯前端，无后端依赖。数据存
 
 ### 模板 B — "现代简约"
 
-- 单栏布局，姓名左对齐，联系信息在姓名右侧或下方
+- 单栏布局，姓名左对齐，联系信息在姓名下方一行排列
 - 分区标题用左侧竖线装饰
 - 字体：无衬线体（`Inter`, `Noto Sans SC`）
 - 配色：深蓝灰（`#2d3748`）主色 + 蓝色强调色（`#3b82f6`）
@@ -114,8 +119,8 @@ Vite + React + TypeScript 单页应用，纯前端，无后端依赖。数据存
 
 ### PDF 导出
 
-- 点击后打开新窗口或隐藏 iframe，只包含简历 HTML + 模板 CSS
-- 触发 `window.print()`，用户在打印对话框中选择"另存为 PDF"
+- 点击后打开新窗口，只包含简历 HTML + 模板 CSS
+- 在新窗口中触发 `window.print()`，用户在打印对话框中选择"另存为 PDF"
 - `@media print` 中设定 A4 纸张尺寸、边距，隐藏非简历内容
 - 文字可选中/搜索，文件体积小
 
