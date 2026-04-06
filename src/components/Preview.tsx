@@ -1,4 +1,5 @@
 import "../templates/classic.css";
+import "../templates/modern.css";
 import type { TemplateName } from "../lib/storage";
 
 interface PreviewProps {

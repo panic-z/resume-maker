@@ -1,0 +1,76 @@
+.template-modern {
+  font-family: Inter, "Noto Sans SC", system-ui, sans-serif;
+  color: #2d3748;
+}
+
+.template-modern .resume-name {
+  text-align: left;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+  color: #1a202c;
+}
+
+.template-modern .resume-contact {
+  text-align: left;
+  font-size: 0.85rem;
+  color: #718096;
+  border: none;
+  padding: 0;
+  margin: 0 0 1.25rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.template-modern .resume-contact p {
+  margin: 0;
+}
+
+.template-modern .resume-contact a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.template-modern .resume-contact a:hover {
+  text-decoration: underline;
+}
+
+.template-modern .resume-section {
+  margin-bottom: 1rem;
+}
+
+.template-modern .resume-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #3b82f6;
+  border-left: 3px solid #3b82f6;
+  padding-left: 0.5rem;
+  margin: 1rem 0 0.5rem 0;
+}
+
+.template-modern .resume-entry-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0.6rem 0 0.2rem 0;
+  color: #1a202c;
+}
+
+.template-modern ul {
+  margin: 0.2rem 0 0.4rem 1.2rem;
+  padding: 0;
+}
+
+.template-modern li {
+  margin-bottom: 0.15rem;
+}
+
+.template-modern a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.template-modern a:hover {
+  text-decoration: underline;
+}
