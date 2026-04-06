@@ -61,3 +61,18 @@
 .template-classic a {
   color: #000;
 }
+@media print {
+  .template-classic {
+    padding: 0;
+    box-shadow: none;
+    width: 100%;
+  }
+
+  .template-classic .resume-name {
+    font-size: 1.5rem;
+  }
+
+  .template-classic .resume-section-title {
+    margin-top: 0.75rem;
+  }
+}
