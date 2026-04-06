@@ -1,0 +1,63 @@
+.template-classic {
+  font-family: Georgia, "Noto Serif SC", "Times New Roman", serif;
+  color: #000;
+}
+
+.template-classic .resume-name {
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+  letter-spacing: 0.05em;
+}
+
+.template-classic .resume-contact {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #444;
+  border: none;
+  padding: 0;
+  margin: 0 0 1.25rem 0;
+}
+
+.template-classic .resume-contact p {
+  margin: 0;
+}
+
+.template-classic .resume-contact a {
+  color: #444;
+  text-decoration: underline;
+}
+
+.template-classic .resume-section {
+  margin-bottom: 1rem;
+}
+
+.template-classic .resume-section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1.5px solid #000;
+  padding-bottom: 0.2rem;
+  margin: 1rem 0 0.5rem 0;
+}
+
+.template-classic .resume-entry-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0.6rem 0 0.2rem 0;
+}
+
+.template-classic ul {
+  margin: 0.2rem 0 0.4rem 1.2rem;
+  padding: 0;
+}
+
+.template-classic li {
+  margin-bottom: 0.15rem;
+}
+
+.template-classic a {
+  color: #000;
+}
