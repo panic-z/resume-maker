@@ -1,14 +1,27 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Editor } from "./Editor";
+import { CssEditor } from "./CssEditor";
 import { Preview } from "./Preview";
+import type { SelectedElement } from "./Preview";
 import { Toolbar } from "./Toolbar";
+import type { EditorTab } from "./Toolbar";
+import { StylePopover } from "./StylePopover";
 import { useResume } from "../hooks/useResume";
 import { parseResumeToHtml } from "../lib/markdown";
 import { exportPdf, exportHtml, exportMarkdown } from "../lib/export";
 
 export function ResumePage() {
-  const { markdown, setMarkdown, template, changeTemplate } = useResume();
+  const {
+    markdown, setMarkdown,
+    template, changeTemplate,
+    style, changeStyle, resetStyle,
+    customCss, setCustomCss,
+  } = useResume();
+
   const [splitPercent, setSplitPercent] = useState(50);
+  const [editorTab, setEditorTab] = useState<EditorTab>("markdown");
+  const [editMode, setEditMode] = useState(false);
+  const [selectedElement, setSelectedElement] = useState<SelectedElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const htmlRef = useRef("");
@@ -52,16 +65,31 @@ export function ResumePage() {
   }, []);
 
   const handleExportPdf = useCallback(() => {
-    exportPdf(htmlRef.current, template);
-  }, [template]);
+    if (!htmlRef.current) return;
+    exportPdf(htmlRef.current, template, style, customCss);
+  }, [template, style, customCss]);
 
   const handleExportHtml = useCallback(() => {
-    exportHtml(htmlRef.current, template);
-  }, [template]);
+    if (!htmlRef.current) return;
+    exportHtml(htmlRef.current, template, style, customCss);
+  }, [template, style, customCss]);
 
   const handleExportMd = useCallback(() => {
     exportMarkdown(markdown);
   }, [markdown]);
+
+  const handleEditModeChange = useCallback((v: boolean) => {
+    setEditMode(v);
+    if (!v) setSelectedElement(null);
+  }, []);
+
+  const handleElementSelect = useCallback((el: SelectedElement | null) => {
+    setSelectedElement(el);
+  }, []);
+
+  const handlePopoverClose = useCallback(() => {
+    setSelectedElement(null);
+  }, []);
 
   return (
     <div className="flex flex-col h-full">
@@ -71,19 +99,46 @@ export function ResumePage() {
         onExportPdf={handleExportPdf}
         onExportHtml={handleExportHtml}
         onExportMarkdown={handleExportMd}
+        style={style}
+        onStyleChange={changeStyle}
+        onStyleReset={resetStyle}
+        editorTab={editorTab}
+        onEditorTabChange={setEditorTab}
+        editMode={editMode}
+        onEditModeChange={handleEditModeChange}
       />
       <div ref={containerRef} className="flex flex-1 overflow-hidden">
         <div style={{ width: `${splitPercent}%` }} className="overflow-hidden">
-          <Editor value={markdown} onChange={setMarkdown} />
+          {editorTab === "markdown" ? (
+            <Editor value={markdown} onChange={setMarkdown} />
+          ) : (
+            <CssEditor value={customCss} onChange={setCustomCss} />
+          )}
         </div>
         <div
           onMouseDown={handleMouseDown}
           className="w-1.5 bg-gray-200 hover:bg-blue-400 cursor-col-resize transition-colors flex-shrink-0"
         />
         <div style={{ width: `${100 - splitPercent}%` }} className="overflow-hidden">
-          <Preview html={htmlRef.current} template={template} />
+          <Preview
+            html={htmlRef.current}
+            template={template}
+            style={style}
+            customCss={customCss}
+            editMode={editMode}
+            onElementSelect={handleElementSelect}
+          />
         </div>
       </div>
+
+      {selectedElement && editMode && (
+        <StylePopover
+          element={selectedElement}
+          customCss={customCss}
+          onCssChange={setCustomCss}
+          onClose={handlePopoverClose}
+        />
+      )}
     </div>
   );
 }

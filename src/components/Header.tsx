@@ -7,14 +7,7 @@ export function Header() {
         <FileText size={20} className="text-blue-600" />
         <span className="font-semibold text-sm">Resume Maker</span>
       </div>
-      <a
-        href="https://github.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
-      >
-        GitHub
-      </a>
+      <span className="text-xs text-gray-400">开源简历生成器</span>
     </header>
   );
 }
