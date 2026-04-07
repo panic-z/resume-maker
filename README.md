@@ -1,73 +1,85 @@
-# React + TypeScript + Vite
+[中文](./README.zh-CN.md) | **English**
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Resume Maker
 
-Currently, two official plugins are available:
+A browser-based resume editor that lets you write in Markdown and export pixel-perfect PDFs, HTML, or `.md` files. Fully client-side — no server, no sign-up, your data stays in `localStorage`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Markdown Editor** — Write your resume in Markdown with live preview (powered by CodeMirror)
+- **5 Templates** — Classic, Modern, Minimal, Professional, Creative — each with its own typography and accent color
+- **Style Panel** — Adjust base font, font size, line height, page padding, and accent color with sliders and presets
+- **Custom CSS Editor** — Switch to the CSS tab for full control; changes are scoped to the resume preview via `@scope`
+- **Visual Editor** — Toggle visual mode, click any resume element, and tweak styles with a floating popover
+- **Export** — Download as PDF (via browser print), standalone HTML, or raw Markdown
+- **Persistence** — All content, template selection, style settings, and custom CSS are saved to `localStorage` with debounced writes and `beforeunload` flush
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+| Layer | Technology |
+|-------|-----------|
+| Framework | React 19 + TypeScript 6 |
+| Build | Vite 8 |
+| Editor | CodeMirror 6 (`@uiw/react-codemirror`) |
+| Markdown | unified / remark / rehype pipeline |
+| Styling | Tailwind CSS 4 (app shell) + vanilla CSS (resume templates) |
+| Testing | Vitest (unit) + Playwright (E2E) |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+```bash
+# Install dependencies
+npm install
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+# Start dev server
+npm run dev
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Run unit tests
+npm test
+
+# Run E2E tests (starts dev server automatically)
+npm run test:e2e
+
+# Build for production
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Project Structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── components/
+│   ├── Header.tsx          # App header
+│   ├── Toolbar.tsx         # Template switcher, style/CSS/visual toggles, export menu
+│   ├── Editor.tsx          # Markdown CodeMirror editor
+│   ├── CssEditor.tsx       # CSS CodeMirror editor
+│   ├── Preview.tsx         # Live resume preview with edit-mode click detection
+│   ├── ResumePage.tsx      # Main layout — editor, splitter, preview, popover
+│   ├── StylePanel.tsx      # Global style controls (font, size, color, padding)
+│   └── StylePopover.tsx    # Per-element visual style editor
+├── hooks/
+│   └── useResume.ts        # Central state — markdown, template, style, customCss
+├── lib/
+│   ├── markdown.ts         # Markdown → HTML pipeline with resume-aware rehype plugin
+│   ├── storage.ts          # localStorage helpers with validation and error handling
+│   ├── export.ts           # PDF / HTML / Markdown export
+│   ├── css-utils.ts        # CSS rule generation, parsing, and merging
+│   └── export.test.ts      # Unit tests for export
+├── templates/
+│   ├── classic.css
+│   ├── modern.css
+│   ├── minimal.css
+│   ├── professional.css
+│   └── creative.css
+├── data/
+│   └── default-resume.ts   # Default sample resume content
+├── App.tsx
+├── main.tsx
+└── index.css
+e2e/
+└── resume-maker.spec.ts    # Playwright E2E tests
+```
+
+## License
+
+MIT
