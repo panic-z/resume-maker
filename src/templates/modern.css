@@ -1,0 +1,104 @@
+.template-modern {
+  font-family: var(--resume-font-family, Inter, "Noto Sans SC", system-ui, sans-serif);
+  font-size: var(--resume-font-size, 14px);
+  line-height: var(--resume-line-height, 1.6);
+  color: #2d3748;
+}
+
+.template-modern .resume-name {
+  text-align: left;
+  font-size: 1.75em;
+  font-weight: 700;
+  margin: 0 0 0.25em 0;
+  color: #1a202c;
+}
+
+.template-modern .resume-contact {
+  text-align: left;
+  font-size: 0.85em;
+  color: #718096;
+  border: none;
+  padding: 0;
+  margin: 0 0 1.25em 0;
+  padding-bottom: 1em;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.template-modern .resume-contact p {
+  margin: 0;
+}
+
+.template-modern .resume-contact a {
+  color: var(--resume-accent, #3b82f6);
+  text-decoration: none;
+}
+
+.template-modern .resume-contact a:hover {
+  text-decoration: underline;
+}
+
+.template-modern .resume-section {
+  margin-bottom: 1em;
+}
+
+.template-modern .resume-section-title {
+  font-size: 1em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--resume-accent, #3b82f6);
+  border-left: 3px solid var(--resume-accent, #3b82f6);
+  padding-left: 0.5em;
+  margin: 1em 0 0.5em 0;
+}
+
+.template-modern .resume-entry-title {
+  font-size: 0.95em;
+  font-weight: 600;
+  margin: 0.6em 0 0.2em 0;
+  color: #1a202c;
+}
+
+.template-modern ul {
+  margin: 0.2em 0 0.4em 1.2em;
+  padding: 0;
+}
+
+.template-modern li {
+  margin-bottom: 0.15em;
+}
+
+.template-modern a {
+  color: var(--resume-accent, #3b82f6);
+  text-decoration: none;
+}
+
+.template-modern a:hover {
+  text-decoration: underline;
+}
+
+@media print {
+  .template-modern {
+    padding: 0;
+    box-shadow: none;
+    width: 100%;
+    color: #2d3748;
+  }
+
+  .template-modern .resume-name {
+    font-size: 1.5em;
+  }
+
+  .template-modern .resume-section-title {
+    margin-top: 0.75em;
+    color: var(--resume-accent, #3b82f6);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .template-modern .resume-contact {
+    border-bottom-color: #e2e8f0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

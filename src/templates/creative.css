@@ -1,0 +1,111 @@
+.template-creative {
+  font-family: var(--resume-font-family, Inter, "Noto Sans SC", system-ui, sans-serif);
+  font-size: var(--resume-font-size, 14px);
+  line-height: var(--resume-line-height, 1.6);
+  color: #2d2d2d;
+}
+
+.template-creative .resume-name {
+  text-align: left;
+  font-size: 2em;
+  font-weight: 800;
+  margin: 0 0 0.1em 0;
+  color: var(--resume-accent, #7c3aed);
+}
+
+.template-creative .resume-contact {
+  text-align: left;
+  font-size: 0.85em;
+  color: #666;
+  border: none;
+  padding: 0.5em 0.8em;
+  margin: 0 0 1.2em 0;
+  background: #f5f3ff;
+  border-radius: 6px;
+}
+
+.template-creative .resume-contact p {
+  margin: 0;
+}
+
+.template-creative .resume-contact a {
+  color: var(--resume-accent, #7c3aed);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.template-creative .resume-contact a:hover {
+  text-decoration: underline;
+}
+
+.template-creative .resume-section {
+  margin-bottom: 0.8em;
+}
+
+.template-creative .resume-section-title {
+  font-size: 0.9em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #fff;
+  background: var(--resume-accent, #7c3aed);
+  display: inline-block;
+  padding: 0.15em 0.6em;
+  border-radius: 3px;
+  margin: 1em 0 0.5em 0;
+}
+
+.template-creative .resume-entry-title {
+  font-size: 0.95em;
+  font-weight: 600;
+  margin: 0.6em 0 0.2em 0;
+  color: #1a1a1a;
+}
+
+.template-creative ul {
+  margin: 0.2em 0 0.4em 1.2em;
+  padding: 0;
+}
+
+.template-creative li {
+  margin-bottom: 0.15em;
+}
+
+.template-creative li::marker {
+  color: var(--resume-accent, #7c3aed);
+}
+
+.template-creative a {
+  color: var(--resume-accent, #7c3aed);
+  text-decoration: none;
+}
+
+.template-creative a:hover {
+  text-decoration: underline;
+}
+
+@media print {
+  .template-creative {
+    padding: 0;
+    box-shadow: none;
+    width: 100%;
+  }
+
+  .template-creative .resume-name {
+    font-size: 1.6em;
+    color: var(--resume-accent, #7c3aed);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .template-creative .resume-section-title {
+    margin-top: 0.75em;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .template-creative .resume-contact {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

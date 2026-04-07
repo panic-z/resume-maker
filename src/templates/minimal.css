@@ -1,0 +1,97 @@
+.template-minimal {
+  font-family: var(--resume-font-family, Inter, "Noto Sans SC", system-ui, sans-serif);
+  font-size: var(--resume-font-size, 14px);
+  line-height: var(--resume-line-height, 1.6);
+  color: #333;
+}
+
+.template-minimal .resume-name {
+  text-align: left;
+  font-size: 1.6em;
+  font-weight: 600;
+  margin: 0 0 0.15em 0;
+  color: #111;
+}
+
+.template-minimal .resume-contact {
+  text-align: left;
+  font-size: 0.85em;
+  color: #888;
+  border: none;
+  padding: 0;
+  margin: 0 0 1.5em 0;
+}
+
+.template-minimal .resume-contact p {
+  margin: 0;
+}
+
+.template-minimal .resume-contact a {
+  color: #888;
+  text-decoration: none;
+}
+
+.template-minimal .resume-contact a:hover {
+  color: var(--resume-accent, #333);
+}
+
+.template-minimal .resume-section {
+  margin-bottom: 0.8em;
+}
+
+.template-minimal .resume-section-title {
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #999;
+  margin: 1.2em 0 0.4em 0;
+}
+
+.template-minimal .resume-entry-title {
+  font-size: 0.95em;
+  font-weight: 600;
+  margin: 0.5em 0 0.15em 0;
+  color: #111;
+}
+
+.template-minimal ul {
+  margin: 0.15em 0 0.3em 1.2em;
+  padding: 0;
+}
+
+.template-minimal li {
+  margin-bottom: 0.1em;
+}
+
+.template-minimal a {
+  color: var(--resume-accent, #333);
+  text-decoration: none;
+}
+
+.template-minimal a:hover {
+  text-decoration: underline;
+}
+
+@media print {
+  .template-minimal {
+    padding: 0;
+    box-shadow: none;
+    width: 100%;
+  }
+
+  .template-minimal .resume-name {
+    font-size: 1.4em;
+  }
+
+  .template-minimal .resume-section-title {
+    margin-top: 0.8em;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .template-minimal .resume-contact {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
