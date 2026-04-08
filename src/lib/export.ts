@@ -28,7 +28,7 @@ export function buildStandaloneHtml(
   const css = cssMap[template];
   const inlineVars = buildInlineVars(style);
   const customBlock = customCss.trim()
-    ? `<style>@scope (.resume) {\n${customCss}\n}</style>`
+    ? `<style>.resume {\n${customCss}\n}</style>`
     : "";
   return `<!DOCTYPE html>
 <html lang="zh-CN">

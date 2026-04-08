@@ -55,7 +55,7 @@ export function Preview({ html, template, style, customCss, editMode, onElementS
     const el = document.createElement("style");
     el.setAttribute("data-resume-custom", "");
     el.textContent = customCss
-      ? `@scope (#resume-preview) {\n${customCss}\n}`
+      ? `#resume-preview {\n${customCss}\n}`
       : "";
     document.head.appendChild(el);
     return () => { el.remove(); };
