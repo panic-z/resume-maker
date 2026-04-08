@@ -550,4 +550,235 @@ test.describe("可视化编辑器", () => {
     await page.click("button:text('可视化')");
     await expect(page.getByText(".resume-name")).not.toBeVisible();
   });
+
+  test("调节姓名字号滑块实际改变预览字体大小", async ({ page }) => {
+    await page.click("button:text('可视化')");
+    const name = page.locator("#resume-preview .resume-name");
+    const originalSize = await name.evaluate(
+      (el) => parseFloat(getComputedStyle(el).fontSize)
+    );
+
+    await name.click();
+    await expect(page.getByText(".resume-name")).toBeVisible();
+
+    const slider = page.locator(".fixed.z-50 input[type='range']").first();
+    await slider.fill("30");
+    await slider.dispatchEvent("input");
+
+    await page.waitForTimeout(300);
+    const newSize = await name.evaluate(
+      (el) => parseFloat(getComputedStyle(el).fontSize)
+    );
+    expect(newSize).toBeGreaterThan(originalSize);
+    expect(newSize).toBeCloseTo(30, 0);
+  });
+
+  test("调节章节标题字号（修复后的 bug 验证）", async ({ page }) => {
+    await page.click("button:text('可视化')");
+    const sectionTitle = page.locator("#resume-preview .resume-section-title").first();
+    const originalSize = await sectionTitle.evaluate(
+      (el) => parseFloat(getComputedStyle(el).fontSize)
+    );
+
+    await sectionTitle.click();
+    await expect(page.getByText(".resume-section-title")).toBeVisible();
+
+    const slider = page.locator(".fixed.z-50 input[type='range']").first();
+    await slider.fill("28");
+    await slider.dispatchEvent("input");
+
+    await page.waitForTimeout(300);
+    const newSize = await sectionTitle.evaluate(
+      (el) => parseFloat(getComputedStyle(el).fontSize)
+    );
+    expect(newSize).toBeGreaterThan(originalSize);
+    expect(newSize).toBeCloseTo(28, 0);
+  });
+
+  test("调节条目标题字号生效", async ({ page }) => {
+    await page.click("button:text('可视化')");
+    const entryTitle = page.locator("#resume-preview .resume-entry-title").first();
+    const originalSize = await entryTitle.evaluate(
+      (el) => parseFloat(getComputedStyle(el).fontSize)
+    );
+
+    await entryTitle.click();
+    await expect(page.getByText(".resume-entry-title")).toBeVisible();
+
+    const slider = page.locator(".fixed.z-50 input[type='range']").first();
+    await slider.fill("24");
+    await slider.dispatchEvent("input");
+
+    await page.waitForTimeout(300);
+    const newSize = await entryTitle.evaluate(
+      (el) => parseFloat(getComputedStyle(el).fontSize)
+    );
+    expect(newSize).toBeGreaterThan(originalSize);
+    expect(newSize).toBeCloseTo(24, 0);
+  });
+
+  test("切换字体粗细按钮生效", async ({ page }) => {
+    await page.click("button:text('可视化')");
+    await page.locator("#resume-preview .resume-name").click();
+    await expect(page.getByText(".resume-name")).toBeVisible();
+
+    await page.locator(".fixed.z-50 button:text('特粗')").click();
+    await page.waitForTimeout(300);
+
+    const weight = await page.locator("#resume-preview .resume-name").evaluate(
+      (el) => getComputedStyle(el).fontWeight
+    );
+    expect(weight).toBe("800");
+  });
+
+  test("颜色选择器改变文字颜色", async ({ page }) => {
+    await page.click("button:text('可视化')");
+    await page.locator("#resume-preview .resume-name").click();
+    await expect(page.getByText(".resume-name")).toBeVisible();
+
+    const colorInput = page.locator(".fixed.z-50 input[type='color']");
+    await colorInput.fill("#ff0000");
+    await page.waitForTimeout(300);
+
+    const color = await page.locator("#resume-preview .resume-name").evaluate(
+      (el) => getComputedStyle(el).color
+    );
+    expect(color).toBe("rgb(255, 0, 0)");
+  });
+
+  test("文本对齐按钮改变对齐方式", async ({ page }) => {
+    await page.click("button:text('可视化')");
+    await page.locator("#resume-preview .resume-name").click();
+    await expect(page.getByText(".resume-name")).toBeVisible();
+
+    await page.locator(".fixed.z-50").getByRole("button", { name: "中", exact: true }).click();
+    await page.waitForTimeout(300);
+
+    const align = await page.locator("#resume-preview .resume-name").evaluate(
+      (el) => getComputedStyle(el).textAlign
+    );
+    expect(align).toBe("center");
+
+    await page.locator(".fixed.z-50").getByRole("button", { name: "右", exact: true }).click();
+    await page.waitForTimeout(300);
+
+    const alignRight = await page.locator("#resume-preview .resume-name").evaluate(
+      (el) => getComputedStyle(el).textAlign
+    );
+    expect(alignRight).toBe("right");
+  });
+
+  test("字间距滑块改变 letter-spacing", async ({ page }) => {
+    await page.click("button:text('可视化')");
+    await page.locator("#resume-preview .resume-name").click();
+    await expect(page.getByText(".resume-name")).toBeVisible();
+
+    const spacingSlider = page.locator(".fixed.z-50 input[type='range']").nth(1);
+    await spacingSlider.fill("0.15");
+    await spacingSlider.dispatchEvent("input");
+
+    await page.waitForTimeout(300);
+    const spacing = await page.locator("#resume-preview .resume-name").evaluate(
+      (el) => getComputedStyle(el).letterSpacing
+    );
+    expect(spacing).not.toBe("normal");
+    expect(spacing).not.toBe("0px");
+  });
+
+  test("边距滑块改变 margin", async ({ page }) => {
+    await page.click("button:text('可视化')");
+    await page.locator("#resume-preview .resume-section-title").first().click();
+    await expect(page.getByText(".resume-section-title")).toBeVisible();
+
+    const marginSlider = page.locator(".fixed.z-50 input[type='range']").nth(2);
+    await marginSlider.fill("2");
+    await marginSlider.dispatchEvent("input");
+
+    await page.waitForTimeout(300);
+    const marginTop = await page.locator("#resume-preview .resume-section-title").first().evaluate(
+      (el) => getComputedStyle(el).marginTop
+    );
+    expect(parseFloat(marginTop)).toBeGreaterThan(0);
+  });
+
+  test("边框样式按钮添加下边框", async ({ page }) => {
+    await page.click("button:text('可视化')");
+    await page.locator("#resume-preview .resume-name").click();
+    await expect(page.getByText(".resume-name")).toBeVisible();
+
+    await page.locator(".fixed.z-50 button:text('实线')").click();
+    await page.waitForTimeout(300);
+
+    const borderStyle = await page.locator("#resume-preview .resume-name").evaluate(
+      (el) => getComputedStyle(el).borderBottomStyle
+    );
+    expect(borderStyle).toBe("solid");
+  });
+
+  test("多元素样式同时生效", async ({ page }) => {
+    await page.click("button:text('可视化')");
+
+    await page.locator("#resume-preview .resume-name").click();
+    await expect(page.getByText(".resume-name")).toBeVisible();
+    const colorInput = page.locator(".fixed.z-50 input[type='color']");
+    await colorInput.fill("#0000ff");
+    await page.waitForTimeout(300);
+
+    await page.keyboard.press("Escape");
+    await expect(page.locator(".fixed.z-50")).not.toBeVisible();
+
+    await page.locator("#resume-preview .resume-section-title").first().click();
+    await expect(page.getByText(".resume-section-title")).toBeVisible();
+    const colorInput2 = page.locator(".fixed.z-50 input[type='color']");
+    await colorInput2.fill("#00ff00");
+    await page.waitForTimeout(300);
+
+    const nameColor = await page.locator("#resume-preview .resume-name").evaluate(
+      (el) => getComputedStyle(el).color
+    );
+    expect(nameColor).toBe("rgb(0, 0, 255)");
+
+    const sectionColor = await page.locator("#resume-preview .resume-section-title").first().evaluate(
+      (el) => getComputedStyle(el).color
+    );
+    expect(sectionColor).toBe("rgb(0, 255, 0)");
+  });
+
+  test("可视化编辑样式注入到 head style 标签", async ({ page }) => {
+    await page.click("button:text('可视化')");
+    await page.locator("#resume-preview .resume-name").click();
+    await expect(page.getByText(".resume-name")).toBeVisible();
+
+    const slider = page.locator(".fixed.z-50 input[type='range']").first();
+    await slider.fill("25");
+    await slider.dispatchEvent("input");
+    await page.waitForTimeout(300);
+
+    const styleContent = await page.evaluate(() => {
+      const el = document.querySelector("style[data-resume-custom]");
+      return el?.textContent ?? "";
+    });
+    expect(styleContent).toContain("#resume-preview");
+    expect(styleContent).toContain(".resume-name");
+    expect(styleContent).toContain("font-size: 25px");
+  });
+
+  test("可视化编辑样式刷新后保留", async ({ page }) => {
+    await page.click("button:text('可视化')");
+    await page.locator("#resume-preview .resume-name").click();
+    await expect(page.getByText(".resume-name")).toBeVisible();
+
+    const colorInput = page.locator(".fixed.z-50 input[type='color']");
+    await colorInput.fill("#ff00ff");
+    await page.waitForTimeout(500);
+
+    await page.reload();
+    await page.waitForSelector("#resume-preview");
+    await page.waitForTimeout(300);
+
+    const color = await page.locator("#resume-preview .resume-name").evaluate(
+      (el) => getComputedStyle(el).color
+    );
+    expect(color).toBe("rgb(255, 0, 255)");
+  });
 });
