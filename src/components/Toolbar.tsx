@@ -2,18 +2,12 @@ import { useState, useRef, useEffect } from "react";
 import { Download, ChevronDown, Settings2, Code2, MousePointerClick } from "lucide-react";
 import type { TemplateName, StyleSettings } from "../lib/storage";
 import { StylePanel } from "./StylePanel";
-
-const TEMPLATES: { value: TemplateName; label: string }[] = [
-  { value: "classic", label: "经典" },
-  { value: "modern", label: "现代" },
-  { value: "minimal", label: "简约" },
-  { value: "professional", label: "商务" },
-  { value: "creative", label: "创意" },
-];
+import { messages, type Language } from "../lib/i18n";
 
 export type EditorTab = "markdown" | "css";
 
 interface ToolbarProps {
+  language: Language;
   template: TemplateName;
   onTemplateChange: (t: TemplateName) => void;
   onExportPdf: () => void;
@@ -29,6 +23,7 @@ interface ToolbarProps {
 }
 
 export function Toolbar({
+  language,
   template,
   onTemplateChange,
   onExportPdf,
@@ -45,6 +40,14 @@ export function Toolbar({
   const [exportOpen, setExportOpen] = useState(false);
   const [styleOpen, setStyleOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const copy = messages[language];
+  const templates: { value: TemplateName; label: string }[] = [
+    { value: "classic", label: copy.toolbar.templates.classic },
+    { value: "modern", label: copy.toolbar.templates.modern },
+    { value: "minimal", label: copy.toolbar.templates.minimal },
+    { value: "professional", label: copy.toolbar.templates.professional },
+    { value: "creative", label: copy.toolbar.templates.creative },
+  ];
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -60,8 +63,8 @@ export function Toolbar({
     <div>
       <div className="flex items-center gap-3 px-4 py-2 border-b border-gray-200 bg-white">
         <div className="flex items-center gap-1.5">
-          <span className="text-xs text-gray-500 mr-1">模板</span>
-          {TEMPLATES.map((t) => (
+          <span className="text-xs text-gray-500 mr-1">{copy.toolbar.template}</span>
+          {templates.map((t) => (
             <button
               key={t.value}
               onClick={() => onTemplateChange(t.value)}
@@ -85,7 +88,7 @@ export function Toolbar({
           }`}
         >
           <Settings2 size={13} />
-          样式
+          {copy.toolbar.style}
         </button>
 
         <button
@@ -109,7 +112,7 @@ export function Toolbar({
           }`}
         >
           <MousePointerClick size={13} />
-          可视化
+          {copy.toolbar.visual}
         </button>
 
         <div className="ml-auto relative" ref={dropdownRef}>
@@ -118,7 +121,7 @@ export function Toolbar({
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
           >
             <Download size={14} />
-            导出
+            {copy.toolbar.export}
             <ChevronDown size={12} />
           </button>
           {exportOpen && (
@@ -147,7 +150,7 @@ export function Toolbar({
       </div>
 
       {styleOpen && (
-        <StylePanel style={style} onChange={onStyleChange} onReset={onStyleReset} />
+        <StylePanel language={language} style={style} onChange={onStyleChange} onReset={onStyleReset} />
       )}
     </div>
   );

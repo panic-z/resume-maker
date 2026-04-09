@@ -9,8 +9,13 @@ import { StylePopover } from "./StylePopover";
 import { useResume } from "../hooks/useResume";
 import { parseResumeToHtml } from "../lib/markdown";
 import { exportPdf, exportHtml, exportMarkdown } from "../lib/export";
+import type { Language } from "../lib/i18n";
 
-export function ResumePage() {
+interface ResumePageProps {
+  language: Language;
+}
+
+export function ResumePage({ language }: ResumePageProps) {
   const {
     markdown, setMarkdown,
     template, changeTemplate,
@@ -66,8 +71,8 @@ export function ResumePage() {
 
   const handleExportPdf = useCallback(() => {
     if (!htmlRef.current) return;
-    exportPdf(htmlRef.current, template, style, customCss);
-  }, [template, style, customCss]);
+    exportPdf(htmlRef.current, template, style, customCss, language);
+  }, [template, style, customCss, language]);
 
   const handleExportHtml = useCallback(() => {
     if (!htmlRef.current) return;
@@ -94,6 +99,7 @@ export function ResumePage() {
   return (
     <div className="flex flex-col h-full">
       <Toolbar
+        language={language}
         template={template}
         onTemplateChange={changeTemplate}
         onExportPdf={handleExportPdf}
@@ -125,6 +131,7 @@ export function ResumePage() {
             template={template}
             style={style}
             customCss={customCss}
+            language={language}
             editMode={editMode}
             onElementSelect={handleElementSelect}
           />
@@ -133,6 +140,7 @@ export function ResumePage() {
 
       {selectedElement && editMode && (
         <StylePopover
+          language={language}
           element={selectedElement}
           customCss={customCss}
           onCssChange={setCustomCss}

@@ -1,5 +1,7 @@
 import type { TemplateName, StyleSettings } from "./storage";
 import { styleToCssVars } from "./storage";
+import type { Language } from "./i18n";
+import { messages } from "./i18n";
 import classicCss from "../templates/classic.css?inline";
 import modernCss from "../templates/modern.css?inline";
 import minimalCss from "../templates/minimal.css?inline";
@@ -63,11 +65,17 @@ export function exportMarkdown(markdown: string): void {
   download(markdown, "resume.md", "text/markdown");
 }
 
-export function exportPdf(resumeHtml: string, template: TemplateName, style: StyleSettings, customCss = ""): void {
+export function exportPdf(
+  resumeHtml: string,
+  template: TemplateName,
+  style: StyleSettings,
+  customCss = "",
+  language: Language = "zh",
+): void {
   const html = buildStandaloneHtml(resumeHtml, template, style, customCss);
   const printWindow = window.open("", "_blank");
   if (!printWindow) {
-    alert("弹窗被浏览器拦截，请允许弹窗后重试");
+    alert(messages[language].export.popupBlocked);
     return;
   }
   printWindow.document.write(html);

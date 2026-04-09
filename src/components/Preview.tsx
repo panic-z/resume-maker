@@ -6,6 +6,7 @@ import "../templates/professional.css";
 import "../templates/creative.css";
 import { styleToCssVars } from "../lib/storage";
 import type { TemplateName, StyleSettings } from "../lib/storage";
+import { messages, type Language } from "../lib/i18n";
 
 export interface SelectedElement {
   selector: string;
@@ -18,36 +19,37 @@ interface PreviewProps {
   template: TemplateName;
   style: StyleSettings;
   customCss: string;
+  language: Language;
   editMode?: boolean;
   onElementSelect?: (el: SelectedElement | null) => void;
 }
 
-const SELECTOR_MAP: { className: string; selector: string; label: string }[] = [
-  { className: "resume-name", selector: ".resume-name", label: "姓名" },
-  { className: "resume-contact", selector: ".resume-contact", label: "联系方式" },
-  { className: "resume-section-title", selector: ".resume-section-title", label: "章节标题" },
-  { className: "resume-entry-title", selector: ".resume-entry-title", label: "条目标题" },
-  { className: "resume-section", selector: ".resume-section", label: "章节" },
-];
-
-function detectElement(target: HTMLElement, container: HTMLElement): SelectedElement | null {
+function detectElement(target: HTMLElement, container: HTMLElement, language: Language): SelectedElement | null {
+  const copy = messages[language].preview.elements;
+  const selectorMap: { className: string; selector: string; label: string }[] = [
+    { className: "resume-name", selector: ".resume-name", label: copy.name },
+    { className: "resume-contact", selector: ".resume-contact", label: copy.contact },
+    { className: "resume-section-title", selector: ".resume-section-title", label: copy.sectionTitle },
+    { className: "resume-entry-title", selector: ".resume-entry-title", label: copy.entryTitle },
+    { className: "resume-section", selector: ".resume-section", label: copy.section },
+  ];
   let el: HTMLElement | null = target;
   while (el && el !== container) {
-    for (const item of SELECTOR_MAP) {
+    for (const item of selectorMap) {
       if (el.classList.contains(item.className)) {
         return { selector: item.selector, label: item.label, rect: el.getBoundingClientRect() };
       }
     }
     const tag = el.tagName.toLowerCase();
-    if (tag === "li") return { selector: "li", label: "列表项", rect: el.getBoundingClientRect() };
-    if (tag === "a") return { selector: "a", label: "链接", rect: el.getBoundingClientRect() };
-    if (tag === "ul") return { selector: "ul", label: "列表", rect: el.getBoundingClientRect() };
+    if (tag === "li") return { selector: "li", label: copy.listItem, rect: el.getBoundingClientRect() };
+    if (tag === "a") return { selector: "a", label: copy.link, rect: el.getBoundingClientRect() };
+    if (tag === "ul") return { selector: "ul", label: copy.list, rect: el.getBoundingClientRect() };
     el = el.parentElement;
   }
   return null;
 }
 
-export function Preview({ html, template, style, customCss, editMode, onElementSelect }: PreviewProps) {
+export function Preview({ html, template, style, customCss, language, editMode, onElementSelect }: PreviewProps) {
   const cssVars = styleToCssVars(style);
   const resumeRef = useRef<HTMLDivElement>(null);
 
@@ -65,9 +67,9 @@ export function Preview({ html, template, style, customCss, editMode, onElementS
     if (!editMode || !onElementSelect || !resumeRef.current) return;
     e.preventDefault();
     const target = e.target as HTMLElement;
-    const selected = detectElement(target, resumeRef.current);
+    const selected = detectElement(target, resumeRef.current, language);
     onElementSelect(selected);
-  }, [editMode, onElementSelect]);
+  }, [editMode, language, onElementSelect]);
 
   return (
     <div className="h-full overflow-auto bg-gray-100 p-8 relative">
@@ -84,7 +86,7 @@ export function Preview({ html, template, style, customCss, editMode, onElementS
       />
       {editMode && (
         <div className="absolute top-2 right-2 bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded">
-          点击元素编辑样式
+          {messages[language].preview.hint}
         </div>
       )}
     </div>

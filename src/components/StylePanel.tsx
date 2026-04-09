@@ -1,30 +1,33 @@
 import { RotateCcw } from "lucide-react";
 import type { StyleSettings, FontFamily } from "../lib/storage";
+import { messages, type Language } from "../lib/i18n";
 
 interface StylePanelProps {
+  language: Language;
   style: StyleSettings;
   onChange: (patch: Partial<StyleSettings>) => void;
   onReset: () => void;
 }
-
-const FONT_OPTIONS: { value: FontFamily; label: string }[] = [
-  { value: "serif", label: "衬线体" },
-  { value: "sans", label: "无衬线" },
-  { value: "system", label: "系统默认" },
-];
 
 const ACCENT_PRESETS = [
   "#000000", "#3b82f6", "#10b981", "#f59e0b",
   "#ef4444", "#8b5cf6", "#ec4899", "#6366f1",
 ];
 
-export function StylePanel({ style, onChange, onReset }: StylePanelProps) {
+export function StylePanel({ language, style, onChange, onReset }: StylePanelProps) {
+  const copy = messages[language];
+  const fontOptions: { value: FontFamily; label: string }[] = [
+    { value: "serif", label: copy.stylePanel.fontOptions.serif },
+    { value: "sans", label: copy.stylePanel.fontOptions.sans },
+    { value: "system", label: copy.stylePanel.fontOptions.system },
+  ];
+
   return (
     <div className="border-b border-gray-200 bg-gray-50 px-4 py-3">
       <div className="flex items-center gap-6 flex-wrap">
-        <LabeledControl label="字体">
+        <LabeledControl label={copy.stylePanel.font}>
           <div className="flex gap-1">
-            {FONT_OPTIONS.map((opt) => (
+            {fontOptions.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => onChange({ fontFamily: opt.value })}
@@ -40,7 +43,7 @@ export function StylePanel({ style, onChange, onReset }: StylePanelProps) {
           </div>
         </LabeledControl>
 
-        <LabeledControl label={`字号 ${style.fontSize}px`}>
+        <LabeledControl label={`${copy.stylePanel.fontSize} ${style.fontSize}px`}>
           <input
             type="range"
             min={10}
@@ -52,7 +55,7 @@ export function StylePanel({ style, onChange, onReset }: StylePanelProps) {
           />
         </LabeledControl>
 
-        <LabeledControl label={`行距 ${style.lineHeight.toFixed(1)}`}>
+        <LabeledControl label={`${copy.stylePanel.lineHeight} ${style.lineHeight.toFixed(1)}`}>
           <input
             type="range"
             min={1.0}
@@ -64,7 +67,7 @@ export function StylePanel({ style, onChange, onReset }: StylePanelProps) {
           />
         </LabeledControl>
 
-        <LabeledControl label={`边距 ${style.pagePadding}mm`}>
+        <LabeledControl label={`${copy.stylePanel.pagePadding} ${style.pagePadding}mm`}>
           <input
             type="range"
             min={10}
@@ -76,7 +79,7 @@ export function StylePanel({ style, onChange, onReset }: StylePanelProps) {
           />
         </LabeledControl>
 
-        <LabeledControl label="主题色">
+        <LabeledControl label={copy.stylePanel.accentColor}>
           <div className="flex items-center gap-1">
             {ACCENT_PRESETS.map((color) => (
               <button
@@ -102,10 +105,10 @@ export function StylePanel({ style, onChange, onReset }: StylePanelProps) {
         <button
           onClick={onReset}
           className="ml-auto flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
-          title="重置样式"
+          title={copy.stylePanel.reset}
         >
           <RotateCcw size={12} />
-          重置
+          {copy.stylePanel.reset}
         </button>
       </div>
     </div>
