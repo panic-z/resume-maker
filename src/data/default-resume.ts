@@ -83,6 +83,11 @@ export function getDefaultResume(language: Language): string {
   return DEFAULT_RESUMES[language];
 }
 
+export function getDefaultResumeLanguage(markdown: string): Language | null {
+  const entry = Object.entries(DEFAULT_RESUMES).find(([, value]) => value === markdown);
+  return (entry?.[0] as Language | undefined) ?? null;
+}
+
 export function isDefaultResume(markdown: string): boolean {
-  return Object.values(DEFAULT_RESUMES).includes(markdown);
+  return getDefaultResumeLanguage(markdown) !== null;
 }

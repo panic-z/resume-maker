@@ -11,9 +11,12 @@ import type { Language } from "../lib/i18n";
 import { getDefaultResume, isDefaultResume } from "../data/default-resume";
 
 export function useResume(language: Language) {
-  const hasStoredContentRef = useRef(loadContent() !== null);
+  const initialContent = loadContent();
+  const hasCustomStoredContentRef = useRef(
+    initialContent !== null && !isDefaultResume(initialContent),
+  );
   const [markdown, setMarkdown] = useState<string>(() => {
-    return loadContent() ?? getDefaultResume(language);
+    return initialContent ?? getDefaultResume(language);
   });
 
   const [template, setTemplate] = useState<TemplateName>(() => {
@@ -40,7 +43,7 @@ export function useResume(language: Language) {
   }, [markdown]);
 
   useEffect(() => {
-    if (!hasStoredContentRef.current && isDefaultResume(markdown)) {
+    if (!hasCustomStoredContentRef.current && isDefaultResume(markdown)) {
       setMarkdown(getDefaultResume(language));
     }
   }, [language, markdown]);
