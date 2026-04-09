@@ -21,7 +21,7 @@ export function ResumePage({ language }: ResumePageProps) {
     template, changeTemplate,
     style, changeStyle, resetStyle,
     customCss, setCustomCss,
-  } = useResume();
+  } = useResume(language);
 
   const [splitPercent, setSplitPercent] = useState(50);
   const [editorTab, setEditorTab] = useState<EditorTab>("markdown");

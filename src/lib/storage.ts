@@ -120,12 +120,25 @@ export function saveCustomCss(css: string): void {
 
 const VALID_LANGUAGES: Language[] = ["zh", "en"];
 
+function detectBrowserLanguage(): Language {
+  if (typeof navigator === "undefined") {
+    return "en";
+  }
+
+  const candidates = [
+    ...(Array.isArray(navigator.languages) ? navigator.languages : []),
+    navigator.language,
+  ].filter((value): value is string => typeof value === "string" && value.length > 0);
+
+  return candidates.some((value) => value.toLowerCase().startsWith("zh")) ? "zh" : "en";
+}
+
 export function loadLanguage(): Language {
   try {
     const value = localStorage.getItem(LANGUAGE_KEY);
     if (value && VALID_LANGUAGES.includes(value as Language)) return value as Language;
   } catch { /* ignore */ }
-  return "zh";
+  return detectBrowserLanguage();
 }
 
 export function saveLanguage(language: Language): void {

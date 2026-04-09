@@ -18,7 +18,7 @@
     <meta name="theme-color" content="#2563eb" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Resume Maker" />
+    <meta property="og:site_name" content="CyberShiba" />
     <meta property="og:title" content="Resume Maker | Free Markdown Resume Builder with PDF Export" />
     <meta
       property="og:description"
@@ -30,8 +30,8 @@
       property="twitter:description"
       content="A fast, local-first resume builder with Markdown editing, live preview, and PDF export."
     />
-    <link rel="canonical" href="https://www.cybershiba.cn/" />
-    <meta property="og:url" content="https://www.cybershiba.cn/" />
+    <link rel="canonical" href="https://www.cybershiba.cn/resume-maker" />
+    <meta property="og:url" content="https://www.cybershiba.cn/resume-maker" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -42,7 +42,7 @@
         "operatingSystem": "Web",
         "browserRequirements": "Requires JavaScript",
         "description": "A browser-based resume editor that lets you write in Markdown, preview changes live, and export polished resumes as PDF or HTML.",
-        "url": "https://www.cybershiba.cn/",
+        "url": "https://www.cybershiba.cn/resume-maker",
         "offers": {
           "@type": "Offer",
           "price": "0",
@@ -62,6 +62,7 @@
       const canonicalUrl = `${window.location.origin}${window.location.pathname}`;
       const canonicalElement = document.querySelector('link[rel="canonical"]');
       const ogUrlElement = document.querySelector('meta[property="og:url"]');
+      const structuredDataElement = document.querySelector('script[type="application/ld+json"]');
 
       if (canonicalElement) {
         canonicalElement.setAttribute("href", canonicalUrl);
@@ -69,6 +70,14 @@
 
       if (ogUrlElement) {
         ogUrlElement.setAttribute("content", canonicalUrl);
+      }
+
+      if (structuredDataElement?.textContent) {
+        try {
+          const structuredData = JSON.parse(structuredDataElement.textContent);
+          structuredData.url = canonicalUrl;
+          structuredDataElement.textContent = JSON.stringify(structuredData);
+        } catch {}
       }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />

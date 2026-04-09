@@ -1,4 +1,7 @@
-export const DEFAULT_RESUME = `# 张三
+import type { Language } from "../lib/i18n";
+
+export const DEFAULT_RESUMES: Record<Language, string> = {
+  zh: `# 张三
 
 > zhangsan@email.com | 138-0000-0000 | [GitHub](https://github.com/zhangsan) | 上海
 
@@ -35,4 +38,51 @@ export const DEFAULT_RESUME = `# 张三
 
 - 一个提升开发效率的 CLI 工具，GitHub 500+ stars
 - 使用 TypeScript 编写，发布到 npm
-`;
+`,
+  en: `# Alex Carter
+
+> alex.carter@email.com | (415) 555-0186 | [GitHub](https://github.com/alexcarter) | San Francisco, CA
+
+## Experience
+
+### Senior Frontend Engineer | Northstar Labs | 2022 - Present
+
+- Led a frontend architecture refresh for the company’s flagship product, improving performance by 40%
+- Managed a team of 5 frontend engineers and delivered 3 large-scale product launches
+- Designed and shipped a shared component system that improved delivery speed by 30%
+
+### Frontend Engineer | Meridian Commerce | 2019 - 2022
+
+- Built and maintained core flows for a high-traffic e-commerce platform
+- Reduced first-screen load time from 3.0s to 1.2s through performance tuning
+- Contributed to code review standards and raised overall code quality across the team
+
+## Education
+
+### B.S. in Computer Science | Westlake University | 2015 - 2019
+
+- GPA 3.8/4.0, Dean’s Scholarship for three consecutive years
+
+## Skills
+
+- **Frontend:** React, TypeScript, Next.js, Vue, Tailwind CSS, Webpack
+- **Backend:** Node.js, Express, PostgreSQL
+- **Tooling:** Git, Docker, CI/CD, Linux
+- **Languages:** English (Fluent), Mandarin Chinese (Conversational)
+
+## Open Source
+
+### [awesome-tool](https://github.com/alexcarter/awesome-tool)
+
+- A CLI utility focused on developer productivity with 500+ GitHub stars
+- Built with TypeScript and published to npm
+`,
+};
+
+export function getDefaultResume(language: Language): string {
+  return DEFAULT_RESUMES[language];
+}
+
+export function isDefaultResume(markdown: string): boolean {
+  return Object.values(DEFAULT_RESUMES).includes(markdown);
+}

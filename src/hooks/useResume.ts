@@ -7,11 +7,13 @@ import {
   DEFAULT_STYLE, TEMPLATE_DEFAULTS,
 } from "../lib/storage";
 import type { TemplateName, StyleSettings } from "../lib/storage";
-import { DEFAULT_RESUME } from "../data/default-resume";
+import type { Language } from "../lib/i18n";
+import { getDefaultResume, isDefaultResume } from "../data/default-resume";
 
-export function useResume() {
+export function useResume(language: Language) {
+  const hasStoredContentRef = useRef(loadContent() !== null);
   const [markdown, setMarkdown] = useState<string>(() => {
-    return loadContent() ?? DEFAULT_RESUME;
+    return loadContent() ?? getDefaultResume(language);
   });
 
   const [template, setTemplate] = useState<TemplateName>(() => {
@@ -36,6 +38,12 @@ export function useResume() {
     mdTimer.current = setTimeout(() => saveContent(markdown), 500);
     return () => { if (mdTimer.current) clearTimeout(mdTimer.current); };
   }, [markdown]);
+
+  useEffect(() => {
+    if (!hasStoredContentRef.current && isDefaultResume(markdown)) {
+      setMarkdown(getDefaultResume(language));
+    }
+  }, [language, markdown]);
 
   useEffect(() => {
     if (cssTimer.current) clearTimeout(cssTimer.current);
