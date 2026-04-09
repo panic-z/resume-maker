@@ -2,40 +2,15 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { X } from "lucide-react";
 import type { SelectedElement } from "./Preview";
 import { getExistingProperties, mergeCustomCss, type CssProperties } from "../lib/css-utils";
+import { messages, type Language } from "../lib/i18n";
 
 interface StylePopoverProps {
+  language: Language;
   element: SelectedElement;
   customCss: string;
   onCssChange: (css: string) => void;
   onClose: () => void;
 }
-
-const FONT_WEIGHTS = [
-  { value: "normal", label: "常规" },
-  { value: "500", label: "中粗" },
-  { value: "600", label: "半粗" },
-  { value: "700", label: "粗体" },
-  { value: "800", label: "特粗" },
-];
-
-const TEXT_ALIGNS = [
-  { value: "left", label: "左" },
-  { value: "center", label: "中" },
-  { value: "right", label: "右" },
-];
-
-const TEXT_TRANSFORMS = [
-  { value: "none", label: "无" },
-  { value: "uppercase", label: "大写" },
-  { value: "capitalize", label: "首大写" },
-];
-
-const BORDER_STYLES = [
-  { value: "none", label: "无" },
-  { value: "solid", label: "实线" },
-  { value: "dashed", label: "虚线" },
-  { value: "dotted", label: "点线" },
-];
 
 function parseNum(val: string | undefined, fallback: string): string {
   if (!val) return fallback;
@@ -50,7 +25,31 @@ function parseBorder(value: string | undefined): { width: string; style: string;
   return { width: "1px", style: "none", color: "#000" };
 }
 
-export function StylePopover({ element, customCss, onCssChange, onClose }: StylePopoverProps) {
+export function StylePopover({ language, element, customCss, onCssChange, onClose }: StylePopoverProps) {
+  const copy = messages[language].stylePopover;
+  const fontWeights = [
+    { value: "normal", label: copy.fontWeights.normal },
+    { value: "500", label: copy.fontWeights["500"] },
+    { value: "600", label: copy.fontWeights["600"] },
+    { value: "700", label: copy.fontWeights["700"] },
+    { value: "800", label: copy.fontWeights["800"] },
+  ];
+  const textAligns = [
+    { value: "left", label: copy.textAligns.left },
+    { value: "center", label: copy.textAligns.center },
+    { value: "right", label: copy.textAligns.right },
+  ];
+  const textTransforms = [
+    { value: "none", label: copy.textTransforms.none },
+    { value: "uppercase", label: copy.textTransforms.uppercase },
+    { value: "capitalize", label: copy.textTransforms.capitalize },
+  ];
+  const borderStyles = [
+    { value: "none", label: copy.borderStyles.none },
+    { value: "solid", label: copy.borderStyles.solid },
+    { value: "dashed", label: copy.borderStyles.dashed },
+    { value: "dotted", label: copy.borderStyles.dotted },
+  ];
   const existing = getExistingProperties(customCss, element.selector);
   const [props, setProps] = useState<CssProperties>(existing);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -115,8 +114,8 @@ export function StylePopover({ element, customCss, onCssChange, onClose }: Style
       </div>
 
       <div className="p-3 space-y-3 max-h-80 overflow-y-auto">
-        <Section title="字体">
-          <Row label="大小">
+        <Section title={copy.sections.font}>
+          <Row label={copy.rows.size}>
             <input
               type="range"
               min={8}
@@ -128,9 +127,9 @@ export function StylePopover({ element, customCss, onCssChange, onClose }: Style
             />
             <span className="text-gray-400 w-8 text-right">{parseNum(props["font-size"]?.replace("px", ""), "—")}px</span>
           </Row>
-          <Row label="粗细">
+          <Row label={copy.rows.weight}>
             <div className="flex gap-0.5">
-              {FONT_WEIGHTS.map((w) => (
+              {fontWeights.map((w) => (
                 <button
                   key={w.value}
                   onClick={() => apply({ "font-weight": w.value })}
@@ -143,7 +142,7 @@ export function StylePopover({ element, customCss, onCssChange, onClose }: Style
               ))}
             </div>
           </Row>
-          <Row label="颜色">
+          <Row label={copy.rows.color}>
             <input
               type="color"
               value={props.color || "#000000"}
@@ -154,10 +153,10 @@ export function StylePopover({ element, customCss, onCssChange, onClose }: Style
           </Row>
         </Section>
 
-        <Section title="文本">
-          <Row label="对齐">
+        <Section title={copy.sections.text}>
+          <Row label={copy.rows.align}>
             <div className="flex gap-0.5">
-              {TEXT_ALIGNS.map((a) => (
+              {textAligns.map((a) => (
                 <button
                   key={a.value}
                   onClick={() => apply({ "text-align": a.value })}
@@ -170,7 +169,7 @@ export function StylePopover({ element, customCss, onCssChange, onClose }: Style
               ))}
             </div>
           </Row>
-          <Row label="间距">
+          <Row label={copy.rows.letterSpacing}>
             <input
               type="range"
               min={0}
@@ -182,9 +181,9 @@ export function StylePopover({ element, customCss, onCssChange, onClose }: Style
             />
             <span className="text-gray-400 w-10 text-right">{parseNum(props["letter-spacing"]?.replace("em", ""), "0")}em</span>
           </Row>
-          <Row label="转换">
+          <Row label={copy.rows.transform}>
             <div className="flex gap-0.5">
-              {TEXT_TRANSFORMS.map((t) => (
+              {textTransforms.map((t) => (
                 <button
                   key={t.value}
                   onClick={() => apply({ "text-transform": t.value })}
@@ -199,8 +198,8 @@ export function StylePopover({ element, customCss, onCssChange, onClose }: Style
           </Row>
         </Section>
 
-        <Section title="间距">
-          <Row label="上边距">
+        <Section title={copy.sections.spacing}>
+          <Row label={copy.rows.marginTop}>
             <input
               type="range"
               min={0}
@@ -212,7 +211,7 @@ export function StylePopover({ element, customCss, onCssChange, onClose }: Style
             />
             <span className="text-gray-400 w-8 text-right">{parseNum(props["margin-top"]?.replace("em", ""), "0")}em</span>
           </Row>
-          <Row label="下边距">
+          <Row label={copy.rows.marginBottom}>
             <input
               type="range"
               min={0}
@@ -226,10 +225,10 @@ export function StylePopover({ element, customCss, onCssChange, onClose }: Style
           </Row>
         </Section>
 
-        <Section title="边框">
-          <Row label="样式">
+        <Section title={copy.sections.border}>
+          <Row label={copy.rows.borderStyle}>
             <div className="flex gap-0.5">
-              {BORDER_STYLES.map((b) => {
+              {borderStyles.map((b) => {
                 const border = parseBorder(props["border-bottom"]);
                 return (
                   <button

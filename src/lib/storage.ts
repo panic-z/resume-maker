@@ -1,7 +1,10 @@
+import type { Language } from "./i18n";
+
 const CONTENT_KEY = "resume-maker:content";
 const TEMPLATE_KEY = "resume-maker:template";
 const STYLE_KEY = "resume-maker:style";
 const CUSTOM_CSS_KEY = "resume-maker:custom-css";
+const LANGUAGE_KEY = "resume-maker:language";
 
 export type TemplateName = "classic" | "modern" | "minimal" | "professional" | "creative";
 
@@ -113,4 +116,18 @@ export function loadCustomCss(): string {
 
 export function saveCustomCss(css: string): void {
   safeSave(CUSTOM_CSS_KEY, css);
+}
+
+const VALID_LANGUAGES: Language[] = ["zh", "en"];
+
+export function loadLanguage(): Language {
+  try {
+    const value = localStorage.getItem(LANGUAGE_KEY);
+    if (value && VALID_LANGUAGES.includes(value as Language)) return value as Language;
+  } catch { /* ignore */ }
+  return "zh";
+}
+
+export function saveLanguage(language: Language): void {
+  safeSave(LANGUAGE_KEY, language);
 }

@@ -4,13 +4,91 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Resume Maker</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC:wght@400;600;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+    <title>Resume Maker | Free Markdown Resume Builder with PDF Export</title>
+    <meta
+      name="description"
+      content="Build a professional resume in your browser with Markdown, live preview, custom templates, and one-click PDF or HTML export. No sign-up required."
+    />
+    <meta
+      name="keywords"
+      content="resume maker, resume builder, markdown resume, CV builder, PDF resume, online resume editor, free resume builder"
+    />
+    <meta name="author" content="Resume Maker" />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Resume Maker" />
+    <meta property="og:title" content="Resume Maker | Free Markdown Resume Builder with PDF Export" />
+    <meta
+      property="og:description"
+      content="Create a polished resume with Markdown editing, live preview, style controls, and instant PDF export. Private by default and fully browser-based."
+    />
+    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:title" content="Resume Maker | Free Markdown Resume Builder with PDF Export" />
+    <meta
+      property="twitter:description"
+      content="A fast, local-first resume builder with Markdown editing, live preview, and PDF export."
+    />
+    <link rel="canonical" href="https://cybershiba.cn/" />
+    <meta property="og:url" content="https://cybershiba.cn/" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Resume Maker",
+        "applicationCategory": "BusinessApplication",
+        "applicationSubCategory": "Resume Builder",
+        "operatingSystem": "Web",
+        "browserRequirements": "Requires JavaScript",
+        "description": "A browser-based resume editor that lets you write in Markdown, preview changes live, and export polished resumes as PDF or HTML.",
+        "url": "https://cybershiba.cn/",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "featureList": [
+          "Markdown resume editor",
+          "Live preview",
+          "PDF export",
+          "HTML export",
+          "Custom resume templates",
+          "Local-first storage"
+        ]
+      }
+    </script>
+    <script>
+      const canonicalUrl = `${window.location.origin}${window.location.pathname}`;
+      const canonicalElement = document.querySelector('link[rel="canonical"]');
+      const ogUrlElement = document.querySelector('meta[property="og:url"]');
+
+      if (canonicalElement) {
+        canonicalElement.setAttribute("href", canonicalUrl);
+      }
+
+      if (ogUrlElement) {
+        ogUrlElement.setAttribute("content", canonicalUrl);
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC:wght@400;600;700&family=Noto+Serif+SC:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <main>
+        <h1>Resume Maker</h1>
+        <p>
+          Resume Maker is a free browser-based resume builder with Markdown editing, live preview,
+          custom styling, and PDF export.
+        </p>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
