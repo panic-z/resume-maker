@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://cybershiba.cn/sitemap.xml
+Sitemap: https://www.cybershiba.cn/sitemap.xml
