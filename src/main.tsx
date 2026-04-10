@@ -8,7 +8,10 @@ import App from "./App";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />
-    <Analytics />
+    <Analytics
+      scriptSrc="https://www.cybershiba.cn/_vercel/insights/script.js"
+      endpoint="https://www.cybershiba.cn/_vercel/insights"
+    />
     <SpeedInsights />
   </StrictMode>
 );
