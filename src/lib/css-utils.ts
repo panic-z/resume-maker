@@ -64,3 +64,8 @@ export function getExistingProperties(css: string, selector: string): CssPropert
   const rule = rules.find((r) => r.selector === selector);
   return rule ? { ...rule.properties } : {};
 }
+
+export function removeCustomCssRule(css: string, selector: string): string {
+  const rules = parseRules(css).filter((rule) => rule.selector !== selector);
+  return rules.map((rule) => rule.raw).join("\n\n");
+}

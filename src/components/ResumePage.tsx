@@ -10,6 +10,7 @@ import { useResume } from "../hooks/useResume";
 import { parseResumeToHtml } from "../lib/markdown";
 import { exportPdf, exportHtml, exportMarkdown } from "../lib/export";
 import type { Language } from "../lib/i18n";
+import { isCompactLayout } from "./preview-layout";
 
 interface ResumePageProps {
   language: Language;
@@ -27,6 +28,8 @@ export function ResumePage({ language }: ResumePageProps) {
   const [editorTab, setEditorTab] = useState<EditorTab>("markdown");
   const [editMode, setEditMode] = useState(false);
   const [selectedElement, setSelectedElement] = useState<SelectedElement | null>(null);
+  const [compact, setCompact] = useState(() => isCompactLayout(window.innerWidth));
+  const [workspaceView, setWorkspaceView] = useState<"editor" | "preview">("editor");
   const containerRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const htmlRef = useRef("");
@@ -42,6 +45,15 @@ export function ResumePage({ language }: ResumePageProps) {
     });
     return () => { cancelled = true; };
   }, [markdown]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setCompact(isCompactLayout(window.innerWidth));
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleMouseDown = useCallback(() => {
     dragging.current = true;
@@ -96,6 +108,27 @@ export function ResumePage({ language }: ResumePageProps) {
     setSelectedElement(null);
   }, []);
 
+  const handleStyleReset = useCallback(() => {
+    resetStyle();
+    setCustomCss("");
+    setSelectedElement(null);
+  }, [resetStyle, setCustomCss]);
+
+  useEffect(() => {
+    if (!compact) {
+      setWorkspaceView("editor");
+    }
+  }, [compact]);
+
+  useEffect(() => {
+    if (compact && workspaceView === "editor") {
+      setSelectedElement(null);
+    }
+  }, [compact, workspaceView]);
+
+  const showEditor = !compact || workspaceView === "editor";
+  const showPreview = !compact || workspaceView === "preview";
+
   return (
     <div className="flex flex-col h-full">
       <Toolbar
@@ -107,25 +140,36 @@ export function ResumePage({ language }: ResumePageProps) {
         onExportMarkdown={handleExportMd}
         style={style}
         onStyleChange={changeStyle}
-        onStyleReset={resetStyle}
+        onStyleReset={handleStyleReset}
         editorTab={editorTab}
         onEditorTabChange={setEditorTab}
         editMode={editMode}
         onEditModeChange={handleEditModeChange}
+        compact={compact}
+        workspaceView={workspaceView}
+        onWorkspaceViewChange={setWorkspaceView}
       />
-      <div ref={containerRef} className="flex flex-1 overflow-hidden">
-        <div style={{ width: `${splitPercent}%` }} className="overflow-hidden">
+      <div ref={containerRef} className={`flex flex-1 overflow-hidden ${compact ? "flex-col" : ""}`}>
+        {showEditor && (
+          <div
+            style={compact ? undefined : { width: `${splitPercent}%` }}
+            className={`overflow-hidden ${compact ? "flex-1 border-b border-gray-200" : ""}`}
+          >
           {editorTab === "markdown" ? (
             <Editor value={markdown} onChange={setMarkdown} />
           ) : (
             <CssEditor value={customCss} onChange={setCustomCss} />
           )}
-        </div>
-        <div
-          onMouseDown={handleMouseDown}
-          className="w-1.5 bg-gray-200 hover:bg-blue-400 cursor-col-resize transition-colors flex-shrink-0"
-        />
-        <div style={{ width: `${100 - splitPercent}%` }} className="overflow-hidden">
+          </div>
+        )}
+        {!compact && (
+          <div
+            onMouseDown={handleMouseDown}
+            className="w-1.5 bg-gray-200 hover:bg-blue-400 cursor-col-resize transition-colors flex-shrink-0"
+          />
+        )}
+        {showPreview && (
+          <div style={compact ? undefined : { width: `${100 - splitPercent}%` }} className="overflow-hidden flex-1">
           <Preview
             html={htmlRef.current}
             template={template}
@@ -135,7 +179,8 @@ export function ResumePage({ language }: ResumePageProps) {
             editMode={editMode}
             onElementSelect={handleElementSelect}
           />
-        </div>
+          </div>
+        )}
       </div>
 
       {selectedElement && editMode && (

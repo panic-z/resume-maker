@@ -10,13 +10,13 @@ export function Header({ language, onLanguageChange }: HeaderProps) {
   const copy = messages[language];
 
   return (
-    <header className="flex items-center justify-between px-4 py-2.5 bg-white border-b border-gray-200">
+    <header className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 bg-white border-b border-gray-200">
       <div className="flex items-center gap-2">
         <FileText size={20} className="text-blue-600" />
         <span className="font-semibold text-sm">Resume Maker</span>
       </div>
-      <div className="flex items-center gap-3">
-        <span className="text-xs text-gray-400">{copy.app.tagline}</span>
+      <div className="flex items-center gap-3 ml-auto">
+        <span className="hidden text-xs text-gray-400 md:inline">{copy.app.tagline}</span>
         <div className="flex items-center gap-1 rounded-md bg-gray-100 p-0.5">
           <button
             type="button"

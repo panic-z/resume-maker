@@ -13,12 +13,19 @@ type Messages = {
   };
   toolbar: {
     template: string;
+    mode: string;
+    workspace: string;
+    edit: string;
+    preview: string;
+    markdown: string;
     style: string;
     visual: string;
     export: string;
     templates: Record<"classic" | "modern" | "minimal" | "professional" | "creative", string>;
   };
   stylePanel: {
+    title: string;
+    close: string;
     font: string;
     fontSize: string;
     lineHeight: string;
@@ -41,6 +48,7 @@ type Messages = {
     };
   };
   stylePopover: {
+    resetElement: string;
     sections: {
       font: string;
       text: string;
@@ -82,6 +90,11 @@ export const messages: Record<Language, Messages> = {
     },
     toolbar: {
       template: "模板",
+      mode: "模式",
+      workspace: "视图",
+      edit: "编辑",
+      preview: "预览",
+      markdown: "Markdown",
       style: "样式",
       visual: "可视化",
       export: "导出",
@@ -94,12 +107,14 @@ export const messages: Record<Language, Messages> = {
       },
     },
     stylePanel: {
+      title: "样式",
+      close: "关闭样式面板",
       font: "字体",
       fontSize: "字号",
       lineHeight: "行距",
       pagePadding: "边距",
       accentColor: "主题色",
-      reset: "重置",
+      reset: "重置全部样式",
       fontOptions: {
         serif: "衬线体",
         sans: "无衬线",
@@ -120,6 +135,7 @@ export const messages: Record<Language, Messages> = {
       },
     },
     stylePopover: {
+      resetElement: "重置当前元素",
       sections: {
         font: "字体",
         text: "文本",
@@ -178,6 +194,11 @@ export const messages: Record<Language, Messages> = {
     },
     toolbar: {
       template: "Templates",
+      mode: "Mode",
+      workspace: "Workspace",
+      edit: "Edit",
+      preview: "Preview",
+      markdown: "Markdown",
       style: "Style",
       visual: "Visual",
       export: "Export",
@@ -190,12 +211,14 @@ export const messages: Record<Language, Messages> = {
       },
     },
     stylePanel: {
+      title: "Style",
+      close: "Close style panel",
       font: "Font",
       fontSize: "Size",
       lineHeight: "Line Height",
       pagePadding: "Padding",
       accentColor: "Accent",
-      reset: "Reset",
+      reset: "Reset All Styles",
       fontOptions: {
         serif: "Serif",
         sans: "Sans",
@@ -216,6 +239,7 @@ export const messages: Record<Language, Messages> = {
       },
     },
     stylePopover: {
+      resetElement: "Reset Element",
       sections: {
         font: "Font",
         text: "Text",
