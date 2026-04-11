@@ -24,39 +24,85 @@
       property="og:description"
       content="Create a polished resume with Markdown editing, live preview, style controls, and instant PDF export. Private by default and fully browser-based."
     />
+    <meta property="og:image" content="https://www.cybershiba.cn/resume-maker/og-cover.svg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="twitter:card" content="summary" />
-    <meta property="twitter:title" content="Resume Maker | Free Markdown Resume Builder with PDF Export" />
+    <meta name="twitter:title" content="Resume Maker | Free Markdown Resume Builder with PDF Export" />
     <meta
-      property="twitter:description"
+      name="twitter:description"
       content="A fast, local-first resume builder with Markdown editing, live preview, and PDF export."
     />
+    <meta name="twitter:image" content="https://www.cybershiba.cn/resume-maker/og-cover.svg" />
     <link rel="canonical" href="https://www.cybershiba.cn/resume-maker" />
     <meta property="og:url" content="https://www.cybershiba.cn/resume-maker" />
     <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "Resume Maker",
-        "applicationCategory": "BusinessApplication",
-        "applicationSubCategory": "Resume Builder",
-        "operatingSystem": "Web",
-        "browserRequirements": "Requires JavaScript",
-        "description": "A browser-based resume editor that lets you write in Markdown, preview changes live, and export polished resumes as PDF or HTML.",
-        "url": "https://www.cybershiba.cn/resume-maker",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
+      [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          "name": "Resume Maker",
+          "applicationCategory": "BusinessApplication",
+          "applicationSubCategory": "Resume Builder",
+          "operatingSystem": "Web",
+          "browserRequirements": "Requires JavaScript",
+          "description": "A browser-based resume editor that lets you write in Markdown, preview changes live, and export polished resumes as PDF or HTML.",
+          "url": "https://www.cybershiba.cn/resume-maker",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "featureList": [
+            "Markdown resume editor",
+            "Live preview",
+            "PDF export",
+            "HTML export",
+            "Custom resume templates",
+            "Local-first storage"
+          ]
         },
-        "featureList": [
-          "Markdown resume editor",
-          "Live preview",
-          "PDF export",
-          "HTML export",
-          "Custom resume templates",
-          "Local-first storage"
-        ]
-      }
+        {
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "name": "Resume Maker",
+          "operatingSystem": "Web",
+          "applicationCategory": "BusinessApplication",
+          "url": "https://www.cybershiba.cn/resume-maker",
+          "image": "https://www.cybershiba.cn/resume-maker/og-cover.svg",
+          "description": "A free markdown resume builder with live preview, template customization, and PDF export."
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Do I need an account to use Resume Maker?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. Resume Maker runs in your browser and does not require sign-up before you start editing."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I export my resume as PDF?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Resume Maker supports one-click PDF export and HTML export from the browser."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I write my resume in Markdown?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. The editor is built for Markdown authoring with live preview and template styling."
+              }
+            }
+          ]
+        }
+      ]
     </script>
     <script>
       const canonicalUrl = `${window.location.origin}${window.location.pathname}`;
@@ -86,9 +132,130 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC:wght@400;600;700&family=Noto+Serif+SC:wght@400;700&display=swap"
       rel="stylesheet"
     />
+    <style>
+      .seo-content {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 48px 20px 72px;
+        color: #0f172a;
+        background: #f8fafc;
+      }
+
+      .seo-content h2 {
+        font-family: "Inter", "Noto Sans SC", sans-serif;
+        font-size: clamp(1.8rem, 2vw, 2.5rem);
+        margin: 0 0 16px;
+      }
+
+      .seo-content h3 {
+        font-family: "Inter", "Noto Sans SC", sans-serif;
+        font-size: 1.15rem;
+        margin: 0 0 12px;
+      }
+
+      .seo-content p,
+      .seo-content li {
+        font-family: "Inter", "Noto Sans SC", sans-serif;
+        line-height: 1.8;
+        color: #475569;
+      }
+
+      .seo-content section + section {
+        margin-top: 32px;
+      }
+
+      .seo-grid {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .seo-card {
+        background: #ffffff;
+        border: 1px solid #dbe3ee;
+        border-radius: 20px;
+        padding: 20px;
+      }
+
+      .seo-content ol,
+      .seo-content ul {
+        margin: 12px 0 0;
+        padding-left: 20px;
+      }
+
+      .seo-content dl {
+        margin: 16px 0 0;
+        display: grid;
+        gap: 18px;
+      }
+
+      .seo-content dt {
+        font-family: "Inter", "Noto Sans SC", sans-serif;
+        font-weight: 700;
+        color: #0f172a;
+      }
+
+      .seo-content dd {
+        margin: 6px 0 0;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
+    <section class="seo-content" aria-label="Resume Maker product information">
+      <section>
+        <h2>Markdown resume builder with live preview and PDF export</h2>
+        <p>
+          Resume Maker is a free browser-based resume builder for people who prefer writing in
+          Markdown and exporting polished resumes without signing up. You can draft content fast,
+          preview multiple templates, adjust styles visually, and export PDF or HTML directly from
+          the browser.
+        </p>
+      </section>
+      <section>
+        <h2>Why Resume Maker works well for fast resume editing</h2>
+        <div class="seo-grid">
+          <article class="seo-card">
+            <h3>Write in Markdown</h3>
+            <p>Use a plain text workflow for experience, education, and projects instead of fighting form fields.</p>
+          </article>
+          <article class="seo-card">
+            <h3>Preview templates instantly</h3>
+            <p>Switch templates and styles while keeping the same content, so you can compare different resume looks quickly.</p>
+          </article>
+          <article class="seo-card">
+            <h3>Keep data local-first</h3>
+            <p>Your draft stays in the browser by default, which is useful when you want private editing without an account.</p>
+          </article>
+        </div>
+      </section>
+      <section>
+        <h2>How Resume Maker Works</h2>
+        <ol>
+          <li>Paste or write your resume content in Markdown.</li>
+          <li>Switch between templates and visual style controls.</li>
+          <li>Review the live preview on desktop or mobile.</li>
+          <li>Export the final result as PDF or HTML.</li>
+        </ol>
+      </section>
+      <section>
+        <h2>Frequently Asked Questions</h2>
+        <dl>
+          <div>
+            <dt>Do I need an account to use Resume Maker?</dt>
+            <dd>No. Resume Maker works directly in the browser and does not require sign-up before editing.</dd>
+          </div>
+          <div>
+            <dt>Can I export my resume as PDF?</dt>
+            <dd>Yes. You can export PDF or HTML from the browser after reviewing the live preview.</dd>
+          </div>
+          <div>
+            <dt>Can I use Markdown with Resume Maker?</dt>
+            <dd>Yes. The editor is designed around Markdown, so you can keep your resume in a portable text format.</dd>
+          </div>
+        </dl>
+      </section>
+    </section>
     <noscript>
       <main>
         <h1>Resume Maker</h1>
