@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { X } from "lucide-react";
 import type { SelectedElement } from "./Preview";
-import { getExistingProperties, mergeCustomCss, type CssProperties } from "../lib/css-utils";
+import { getExistingProperties, mergeCustomCss, removeCustomCssRule, type CssProperties } from "../lib/css-utils";
 import { messages, type Language } from "../lib/i18n";
 
 interface StylePopoverProps {
@@ -96,6 +96,12 @@ export function StylePopover({ language, element, customCss, onCssChange, onClos
     });
   }, [element.selector, onCssChange]);
 
+  const handleResetElement = useCallback(() => {
+    internalChange.current = true;
+    setProps({});
+    onCssChange(removeCustomCssRule(customCssRef.current, element.selector));
+  }, [element.selector, onCssChange]);
+
   const top = Math.max(8, element.rect.top - 8);
   const left = Math.max(8, Math.min(element.rect.right + 12, window.innerWidth - 300));
 
@@ -114,6 +120,13 @@ export function StylePopover({ language, element, customCss, onCssChange, onClos
       </div>
 
       <div className="p-3 space-y-3 max-h-80 overflow-y-auto">
+        <button
+          type="button"
+          onClick={handleResetElement}
+          className="w-full rounded-md border border-gray-200 px-3 py-2 text-left text-[11px] font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-700"
+        >
+          {copy.resetElement}
+        </button>
         <Section title={copy.sections.font}>
           <Row label={copy.rows.size}>
             <input
