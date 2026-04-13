@@ -136,125 +136,163 @@
       .seo-content {
         max-width: 1120px;
         margin: 0 auto;
-        padding: 48px 20px 72px;
+        padding: 32px 20px 72px;
         color: #0f172a;
-        background: #f8fafc;
       }
 
-      .seo-content h2 {
-        font-family: "Inter", "Noto Sans SC", sans-serif;
-        font-size: clamp(1.8rem, 2vw, 2.5rem);
-        margin: 0 0 16px;
+      .seo-shell {
+        background: linear-gradient(180deg, rgba(241, 245, 249, 0.78) 0%, rgba(248, 250, 252, 0.92) 100%);
+        border: 1px solid #dbe3ee;
+        border-radius: 28px;
+        padding: 28px;
+        box-shadow: 0 16px 48px rgba(15, 23, 42, 0.05);
       }
 
-      .seo-content h3 {
+      .seo-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #e0f2fe;
+        color: #0f766e;
+        font: 600 12px/1 "Inter", "Noto Sans SC", sans-serif;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .seo-shell h2,
+      .seo-shell h3,
+      .seo-shell summary,
+      .seo-shell dt {
         font-family: "Inter", "Noto Sans SC", sans-serif;
-        font-size: 1.15rem;
-        margin: 0 0 12px;
+      }
+
+      .seo-shell h2 {
+        font-size: clamp(1.5rem, 1.7vw, 2rem);
+        margin: 16px 0 12px;
       }
 
       .seo-content p,
-      .seo-content li {
+      .seo-content li,
+      .seo-content dd {
         font-family: "Inter", "Noto Sans SC", sans-serif;
-        line-height: 1.8;
+        line-height: 1.75;
         color: #475569;
       }
 
-      .seo-content section + section {
-        margin-top: 32px;
+      .seo-intro {
+        max-width: 720px;
       }
 
-      .seo-grid {
+      .seo-summary {
         display: grid;
-        gap: 20px;
+        gap: 18px;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        margin-top: 24px;
       }
 
-      .seo-card {
+      .summary-card {
         background: #ffffff;
         border: 1px solid #dbe3ee;
         border-radius: 20px;
         padding: 20px;
       }
 
-      .seo-content ol,
-      .seo-content ul {
-        margin: 12px 0 0;
-        padding-left: 20px;
+      .summary-card h3 {
+        font-size: 1rem;
+        margin: 0 0 10px;
       }
 
-      .seo-content dl {
-        margin: 16px 0 0;
+      .summary-card p {
+        margin: 0;
+      }
+
+      .seo-faq {
+        margin-top: 24px;
         display: grid;
-        gap: 18px;
+        gap: 12px;
       }
 
-      .seo-content dt {
-        font-family: "Inter", "Noto Sans SC", sans-serif;
-        font-weight: 700;
+      .seo-faq details {
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid #dbe3ee;
+        border-radius: 18px;
+        padding: 16px 18px;
+      }
+
+      .seo-faq summary {
+        cursor: pointer;
+        list-style: none;
+        font-size: 0.98rem;
+        font-weight: 600;
         color: #0f172a;
       }
 
-      .seo-content dd {
-        margin: 6px 0 0;
+      .seo-faq summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .seo-faq p {
+        margin: 12px 0 0;
+      }
+
+      @media (max-width: 768px) {
+        .seo-content {
+          padding: 24px 16px 56px;
+        }
+
+        .seo-shell {
+          padding: 22px 18px;
+          border-radius: 22px;
+        }
       }
     </style>
   </head>
   <body>
     <div id="root"></div>
     <section class="seo-content" aria-label="Resume Maker product information">
-      <section>
-        <h2>Markdown resume builder with live preview and PDF export</h2>
-        <p>
-          Resume Maker is a free browser-based resume builder for people who prefer writing in
-          Markdown and exporting polished resumes without signing up. You can draft content fast,
-          preview multiple templates, adjust styles visually, and export PDF or HTML directly from
-          the browser.
-        </p>
-      </section>
-      <section>
-        <h2>Why Resume Maker works well for fast resume editing</h2>
-        <div class="seo-grid">
-          <article class="seo-card">
-            <h3>Write in Markdown</h3>
-            <p>Use a plain text workflow for experience, education, and projects instead of fighting form fields.</p>
+      <div class="seo-shell">
+        <span class="seo-eyebrow" data-seo="eyebrow">About Resume Maker</span>
+        <div class="seo-intro">
+          <h2 data-seo="heroTitle">Markdown resume builder with live preview and PDF export</h2>
+          <p data-seo="heroBody">
+            Resume Maker is a free browser-based resume builder for people who prefer writing in
+            Markdown and exporting polished resumes without signing up. You can draft content fast,
+            preview multiple templates, adjust styles visually, and export PDF or HTML directly from
+            the browser.
+          </p>
+        </div>
+        <div class="seo-summary">
+          <article class="summary-card">
+            <h3 data-seo="cardTitle1">Write in Markdown</h3>
+            <p data-seo="cardBody1">Use a plain text workflow for experience, education, and projects instead of fighting form fields.</p>
           </article>
-          <article class="seo-card">
-            <h3>Preview templates instantly</h3>
-            <p>Switch templates and styles while keeping the same content, so you can compare different resume looks quickly.</p>
+          <article class="summary-card">
+            <h3 data-seo="cardTitle2">Preview templates instantly</h3>
+            <p data-seo="cardBody2">Switch templates and styles while keeping the same content, so you can compare different resume looks quickly.</p>
           </article>
-          <article class="seo-card">
-            <h3>Keep data local-first</h3>
-            <p>Your draft stays in the browser by default, which is useful when you want private editing without an account.</p>
+          <article class="summary-card">
+            <h3 data-seo="cardTitle3">Keep data local-first</h3>
+            <p data-seo="cardBody3">Your draft stays in the browser by default, which is useful when you want private editing without an account.</p>
           </article>
         </div>
-      </section>
-      <section>
-        <h2>How Resume Maker Works</h2>
-        <ol>
-          <li>Paste or write your resume content in Markdown.</li>
-          <li>Switch between templates and visual style controls.</li>
-          <li>Review the live preview on desktop or mobile.</li>
-          <li>Export the final result as PDF or HTML.</li>
-        </ol>
-      </section>
-      <section>
-        <h2>Frequently Asked Questions</h2>
-        <dl>
-          <div>
-            <dt>Do I need an account to use Resume Maker?</dt>
-            <dd>No. Resume Maker works directly in the browser and does not require sign-up before editing.</dd>
-          </div>
-          <div>
-            <dt>Can I export my resume as PDF?</dt>
-            <dd>Yes. You can export PDF or HTML from the browser after reviewing the live preview.</dd>
-          </div>
-          <div>
-            <dt>Can I use Markdown with Resume Maker?</dt>
-            <dd>Yes. The editor is designed around Markdown, so you can keep your resume in a portable text format.</dd>
-          </div>
-        </dl>
-      </section>
+        <div class="seo-faq">
+          <h3 data-seo="faqTitle">Frequently Asked Questions</h3>
+          <details>
+            <summary data-seo="faqQuestion1">Do I need an account to use Resume Maker?</summary>
+            <p data-seo="faqAnswer1">No. Resume Maker works directly in the browser and does not require sign-up before editing.</p>
+          </details>
+          <details>
+            <summary data-seo="faqQuestion2">Can I export my resume as PDF?</summary>
+            <p data-seo="faqAnswer2">Yes. You can export PDF or HTML from the browser after reviewing the live preview.</p>
+          </details>
+          <details>
+            <summary data-seo="faqQuestion3">Can I use Markdown with Resume Maker?</summary>
+            <p data-seo="faqAnswer3">Yes. The editor is designed around Markdown, so you can keep your resume in a portable text format.</p>
+          </details>
+        </div>
+      </div>
     </section>
     <noscript>
       <main>
@@ -265,6 +303,72 @@
         </p>
       </main>
     </noscript>
+    <script>
+      const seoMessages = {
+        en: {
+          eyebrow: "About Resume Maker",
+          heroTitle: "Markdown resume builder with live preview and PDF export",
+          heroBody:
+            "Resume Maker is a free browser-based resume builder for people who prefer writing in Markdown and exporting polished resumes without signing up. You can draft content fast, preview multiple templates, adjust styles visually, and export PDF or HTML directly from the browser.",
+          cardTitle1: "Write in Markdown",
+          cardBody1: "Use a plain text workflow for experience, education, and projects instead of fighting form fields.",
+          cardTitle2: "Preview templates instantly",
+          cardBody2: "Switch templates and styles while keeping the same content, so you can compare different resume looks quickly.",
+          cardTitle3: "Keep data local-first",
+          cardBody3: "Your draft stays in the browser by default, which is useful when you want private editing without an account.",
+          faqTitle: "Frequently Asked Questions",
+          faqQuestion1: "Do I need an account to use Resume Maker?",
+          faqAnswer1: "No. Resume Maker works directly in the browser and does not require sign-up before editing.",
+          faqQuestion2: "Can I export my resume as PDF?",
+          faqAnswer2: "Yes. You can export PDF or HTML from the browser after reviewing the live preview.",
+          faqQuestion3: "Can I use Markdown with Resume Maker?",
+          faqAnswer3: "Yes. The editor is designed around Markdown, so you can keep your resume in a portable text format.",
+        },
+        zh: {
+          eyebrow: "关于 Resume Maker",
+          heroTitle: "支持实时预览和 PDF 导出的 Markdown 简历生成器",
+          heroBody:
+            "Resume Maker 是一个免费、浏览器内运行的简历工具，适合喜欢用 Markdown 写作、又希望快速导出成品的人。你可以直接编辑内容、切换模板、调整样式，并一键导出 PDF 或 HTML。",
+          cardTitle1: "直接用 Markdown 写简历",
+          cardBody1: "用纯文本方式维护经历、教育和项目，而不是在一堆表单里反复填写。",
+          cardTitle2: "边改边看模板效果",
+          cardBody2: "保留同一份内容，快速切换不同模板和样式，马上比较哪种排版更适合投递。",
+          cardTitle3: "默认本地优先",
+          cardBody3: "草稿默认保存在浏览器里，适合希望私密编辑、不想先注册账号的使用场景。",
+          faqTitle: "常见问题",
+          faqQuestion1: "使用 Resume Maker 需要注册账号吗？",
+          faqAnswer1: "不需要。Resume Maker 直接在浏览器中运行，打开后就可以开始编辑。",
+          faqQuestion2: "可以导出 PDF 吗？",
+          faqAnswer2: "可以。你可以在浏览器里直接导出 PDF，也支持导出 HTML。",
+          faqQuestion3: "可以一直用 Markdown 写吗？",
+          faqAnswer3: "可以。编辑器就是围绕 Markdown 设计的，同时保留模板预览和样式调整能力。",
+        },
+      };
+
+      function resolveSeoLanguage() {
+        const documentLang = document.documentElement.lang;
+        return documentLang.startsWith("zh") ? "zh" : "en";
+      }
+
+      function applySeoLanguage(language) {
+        const copy = seoMessages[language] ?? seoMessages.en;
+        document.querySelectorAll("[data-seo]").forEach((node) => {
+          const key = node.getAttribute("data-seo");
+          if (key && copy[key]) {
+            node.textContent = copy[key];
+          }
+        });
+      }
+
+      applySeoLanguage(resolveSeoLanguage());
+
+      new MutationObserver(() => {
+        applySeoLanguage(resolveSeoLanguage());
+      }).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["lang"],
+      });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
