@@ -63,4 +63,33 @@ describe("Toolbar style drawer", () => {
 
     expect(screen.queryByRole("dialog", { name: "样式" })).not.toBeInTheDocument();
   });
+
+  test("closes the style drawer when clicking the backdrop", () => {
+    renderToolbar();
+
+    fireEvent.click(screen.getByRole("button", { name: "样式" }));
+    fireEvent.pointerDown(document.body);
+
+    expect(screen.queryByRole("dialog", { name: "样式" })).not.toBeInTheDocument();
+  });
+
+  test("closes the style drawer on outside pointer interaction", () => {
+    renderToolbar();
+
+    fireEvent.click(screen.getByRole("button", { name: "样式" }));
+    fireEvent.pointerDown(document.body);
+
+    expect(screen.queryByRole("dialog", { name: "样式" })).not.toBeInTheDocument();
+  });
+
+  test("closes the export menu on outside pointer interaction", () => {
+    renderToolbar();
+
+    fireEvent.click(screen.getByRole("button", { name: "导出" }));
+    expect(screen.getByRole("button", { name: "PDF" })).toBeInTheDocument();
+
+    fireEvent.pointerDown(document.body);
+
+    expect(screen.queryByRole("button", { name: "PDF" })).not.toBeInTheDocument();
+  });
 });

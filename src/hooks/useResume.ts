@@ -11,10 +11,7 @@ import type { Language } from "../lib/i18n";
 import { getDefaultResume, isDefaultResume } from "../data/default-resume";
 
 export function useResume(language: Language) {
-  const initialContent = loadContent();
-  const hasCustomStoredContentRef = useRef(
-    initialContent !== null && !isDefaultResume(initialContent),
-  );
+  const [initialContent] = useState<string | null>(() => loadContent());
   const [markdown, setMarkdown] = useState<string>(() => {
     return initialContent ?? getDefaultResume(language);
   });
@@ -25,28 +22,34 @@ export function useResume(language: Language) {
 
   const [style, setStyleState] = useState<StyleSettings>(() => loadStyle());
   const [customCss, setCustomCssState] = useState<string>(() => loadCustomCss());
+  const effectiveMarkdown = isDefaultResume(markdown)
+    ? getDefaultResume(language)
+    : markdown;
 
   const mdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cssTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const styleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const markdownRef = useRef(markdown);
+  const markdownRef = useRef(effectiveMarkdown);
   const customCssRef = useRef(customCss);
   const styleRef = useRef(style);
-  markdownRef.current = markdown;
-  customCssRef.current = customCss;
-  styleRef.current = style;
+
+  useEffect(() => {
+    markdownRef.current = effectiveMarkdown;
+  }, [effectiveMarkdown]);
+
+  useEffect(() => {
+    customCssRef.current = customCss;
+  }, [customCss]);
+
+  useEffect(() => {
+    styleRef.current = style;
+  }, [style]);
 
   useEffect(() => {
     if (mdTimer.current) clearTimeout(mdTimer.current);
-    mdTimer.current = setTimeout(() => saveContent(markdown), 500);
+    mdTimer.current = setTimeout(() => saveContent(effectiveMarkdown), 500);
     return () => { if (mdTimer.current) clearTimeout(mdTimer.current); };
-  }, [markdown]);
-
-  useEffect(() => {
-    if (!hasCustomStoredContentRef.current && isDefaultResume(markdown)) {
-      setMarkdown(getDefaultResume(language));
-    }
-  }, [language, markdown]);
+  }, [effectiveMarkdown]);
 
   useEffect(() => {
     if (cssTimer.current) clearTimeout(cssTimer.current);
@@ -93,5 +96,5 @@ export function useResume(language: Language) {
     setCustomCssState(css);
   }, []);
 
-  return { markdown, setMarkdown, template, changeTemplate, style, changeStyle, resetStyle, customCss, setCustomCss };
+  return { markdown: effectiveMarkdown, setMarkdown, template, changeTemplate, style, changeStyle, resetStyle, customCss, setCustomCss };
 }

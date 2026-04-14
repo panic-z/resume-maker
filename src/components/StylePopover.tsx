@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { X } from "lucide-react";
 import type { SelectedElement } from "./Preview";
 import { getExistingProperties, mergeCustomCss, removeCustomCssRule, type CssProperties } from "../lib/css-utils";
@@ -50,55 +50,38 @@ export function StylePopover({ language, element, customCss, onCssChange, onClos
     { value: "dashed", label: copy.borderStyles.dashed },
     { value: "dotted", label: copy.borderStyles.dotted },
   ];
-  const existing = getExistingProperties(customCss, element.selector);
-  const [props, setProps] = useState<CssProperties>(existing);
+  const props = getExistingProperties(customCss, element.selector);
   const popoverRef = useRef<HTMLDivElement>(null);
 
   const customCssRef = useRef(customCss);
-  customCssRef.current = customCss;
-  const internalChange = useRef(false);
-  const prevSelector = useRef(element.selector);
 
   useEffect(() => {
-    const selectorChanged = prevSelector.current !== element.selector;
-    prevSelector.current = element.selector;
-    if (!selectorChanged && internalChange.current) {
-      internalChange.current = false;
-      return;
-    }
-    internalChange.current = false;
-    setProps(getExistingProperties(customCss, element.selector));
-  }, [element.selector, customCss]);
+    customCssRef.current = customCss;
+  }, [customCss]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (e: PointerEvent) => {
       if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
         onClose();
       }
     };
     document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("pointerdown", handleClickOutside);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("pointerdown", handleClickOutside);
     };
   }, [onClose]);
 
   const apply = useCallback((patch: CssProperties) => {
-    setProps((prev) => {
-      const next = { ...prev, ...patch };
-      internalChange.current = true;
-      onCssChange(mergeCustomCss(customCssRef.current, element.selector, next));
-      return next;
-    });
+    const next = { ...getExistingProperties(customCssRef.current, element.selector), ...patch };
+    onCssChange(mergeCustomCss(customCssRef.current, element.selector, next));
   }, [element.selector, onCssChange]);
 
   const handleResetElement = useCallback(() => {
-    internalChange.current = true;
-    setProps({});
     onCssChange(removeCustomCssRule(customCssRef.current, element.selector));
   }, [element.selector, onCssChange]);
 

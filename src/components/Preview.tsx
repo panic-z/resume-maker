@@ -8,6 +8,7 @@ import { styleToCssVars } from "../lib/storage";
 import type { TemplateName, StyleSettings } from "../lib/storage";
 import { messages, type Language } from "../lib/i18n";
 import { getPreviewScale } from "./preview-layout";
+import { scopeCustomCss } from "../lib/scoped-css";
 
 export interface SelectedElement {
   selector: string;
@@ -59,9 +60,7 @@ export function Preview({ html, template, style, customCss, language, editMode, 
   useEffect(() => {
     const el = document.createElement("style");
     el.setAttribute("data-resume-custom", "");
-    el.textContent = customCss
-      ? `#resume-preview {\n${customCss}\n}`
-      : "";
+    el.textContent = scopeCustomCss(customCss, "#resume-preview");
     document.head.appendChild(el);
     return () => { el.remove(); };
   }, [customCss]);

@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { RotateCcw, X } from "lucide-react";
 import type { StyleSettings, FontFamily } from "../lib/storage";
 import { messages, type Language } from "../lib/i18n";
+import type { RefObject } from "react";
 
 interface StylePanelProps {
   language: Language;
@@ -9,6 +10,7 @@ interface StylePanelProps {
   onChange: (patch: Partial<StyleSettings>) => void;
   onReset: () => void;
   onClose: () => void;
+  triggerRef?: RefObject<HTMLElement | null>;
 }
 
 const ACCENT_PRESETS = [
@@ -16,7 +18,7 @@ const ACCENT_PRESETS = [
   "#ef4444", "#8b5cf6", "#ec4899", "#6366f1",
 ];
 
-export function StylePanel({ language, style, onChange, onReset, onClose }: StylePanelProps) {
+export function StylePanel({ language, style, onChange, onReset, onClose, triggerRef }: StylePanelProps) {
   const copy = messages[language].stylePanel;
   const panelRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -62,27 +64,31 @@ export function StylePanel({ language, style, onChange, onReset, onClose }: Styl
     };
 
     document.addEventListener("keydown", handleKeyDown);
+    const handlePointerDown = (event: PointerEvent) => {
+      if (triggerRef?.current?.contains(event.target as Node)) {
+        return;
+      }
+      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("pointerdown", handlePointerDown);
       previousActiveElement?.focus();
     };
-  }, [onClose]);
+  }, [onClose, triggerRef]);
 
   return (
-    <div className="fixed inset-0 z-40">
-      <button
-        type="button"
-        aria-hidden="true"
-        tabIndex={-1}
-        className="absolute inset-0 bg-gray-900/25"
-        onClick={onClose}
-      />
+    <div className="fixed inset-0 z-40 pointer-events-none">
+      <div aria-hidden="true" className="absolute inset-0 bg-gray-900/25 pointer-events-none" />
       <div
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-label={copy.title}
-        className="absolute inset-y-0 right-0 flex w-full max-w-sm flex-col border-l border-gray-200 bg-white shadow-2xl"
+        className="pointer-events-auto absolute inset-y-0 right-0 flex w-full max-w-sm flex-col border-l border-gray-200 bg-white shadow-2xl"
       >
         <div className="flex items-center justify-between border-b border-gray-200 px-4 py-4">
           <div>

@@ -46,6 +46,7 @@ export function Toolbar({
   const [exportOpen, setExportOpen] = useState(false);
   const [styleOpen, setStyleOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const styleButtonRef = useRef<HTMLButtonElement>(null);
   const copy = messages[language];
   const templates: { value: TemplateName; label: string }[] = [
     { value: "classic", label: copy.toolbar.templates.classic },
@@ -56,18 +57,18 @@ export function Toolbar({
   ];
 
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
+    function handleClickOutside(e: PointerEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setExportOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("pointerdown", handleClickOutside);
+    return () => document.removeEventListener("pointerdown", handleClickOutside);
   }, []);
 
   return (
     <div>
-      <div className={`border-b border-gray-200 bg-white ${compact ? "px-3 py-2.5" : "px-4 py-3"}`}>
+      <div className={`relative z-50 border-b border-gray-200 bg-white ${compact ? "px-3 py-2.5" : "px-4 py-3"}`}>
         <div className={compact ? "grid grid-cols-2 items-end gap-x-3 gap-y-2" : "flex flex-wrap items-start gap-3"}>
           <div className="flex min-w-0 flex-col gap-1">
             <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-gray-400">
@@ -109,6 +110,7 @@ export function Toolbar({
             </span>
             <div className={`flex flex-wrap items-center ${compact ? "gap-1" : "gap-1.5"}`}>
               <button
+                ref={styleButtonRef}
                 onClick={() => setStyleOpen(!styleOpen)}
                 className={`flex items-center gap-1 ${compact ? "px-2 py-1.5" : "px-2.5 py-1.5"} text-xs rounded-md transition-colors ${
                   styleOpen
@@ -216,6 +218,7 @@ export function Toolbar({
           onChange={onStyleChange}
           onReset={onStyleReset}
           onClose={() => setStyleOpen(false)}
+          triggerRef={styleButtonRef}
         />
       )}
     </div>

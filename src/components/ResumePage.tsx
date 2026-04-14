@@ -30,17 +30,20 @@ export function ResumePage({ language }: ResumePageProps) {
   const [selectedElement, setSelectedElement] = useState<SelectedElement | null>(null);
   const [compact, setCompact] = useState(() => isCompactLayout(window.innerWidth));
   const [workspaceView, setWorkspaceView] = useState<"editor" | "preview">("editor");
+  const [html, setHtml] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
-  const htmlRef = useRef("");
-  const [, forceUpdate] = useState(0);
+  const workspaceViewRef = useRef(workspaceView);
+
+  useEffect(() => {
+    workspaceViewRef.current = workspaceView;
+  }, [workspaceView]);
 
   useEffect(() => {
     let cancelled = false;
     parseResumeToHtml(markdown).then((result) => {
       if (!cancelled) {
-        htmlRef.current = result;
-        forceUpdate((n) => n + 1);
+        setHtml(result);
       }
     });
     return () => { cancelled = true; };
@@ -48,7 +51,14 @@ export function ResumePage({ language }: ResumePageProps) {
 
   useEffect(() => {
     const handleResize = () => {
-      setCompact(isCompactLayout(window.innerWidth));
+      const nextCompact = isCompactLayout(window.innerWidth);
+      setCompact(nextCompact);
+      if (!nextCompact) {
+        setWorkspaceView("editor");
+      }
+      if (nextCompact && workspaceViewRef.current === "editor") {
+        setSelectedElement(null);
+      }
     };
 
     window.addEventListener("resize", handleResize);
@@ -82,14 +92,14 @@ export function ResumePage({ language }: ResumePageProps) {
   }, []);
 
   const handleExportPdf = useCallback(() => {
-    if (!htmlRef.current) return;
-    exportPdf(htmlRef.current, template, style, customCss, language);
-  }, [template, style, customCss, language]);
+    if (!html) return;
+    exportPdf(html, template, style, customCss, language);
+  }, [html, template, style, customCss, language]);
 
   const handleExportHtml = useCallback(() => {
-    if (!htmlRef.current) return;
-    exportHtml(htmlRef.current, template, style, customCss);
-  }, [template, style, customCss]);
+    if (!html) return;
+    exportHtml(html, template, style, customCss, language);
+  }, [html, template, style, customCss, language]);
 
   const handleExportMd = useCallback(() => {
     exportMarkdown(markdown);
@@ -114,17 +124,12 @@ export function ResumePage({ language }: ResumePageProps) {
     setSelectedElement(null);
   }, [resetStyle, setCustomCss]);
 
-  useEffect(() => {
-    if (!compact) {
-      setWorkspaceView("editor");
-    }
-  }, [compact]);
-
-  useEffect(() => {
-    if (compact && workspaceView === "editor") {
+  const handleWorkspaceViewChange = useCallback((view: "editor" | "preview") => {
+    setWorkspaceView(view);
+    if (view === "editor") {
       setSelectedElement(null);
     }
-  }, [compact, workspaceView]);
+  }, []);
 
   const showEditor = !compact || workspaceView === "editor";
   const showPreview = !compact || workspaceView === "preview";
@@ -147,7 +152,7 @@ export function ResumePage({ language }: ResumePageProps) {
         onEditModeChange={handleEditModeChange}
         compact={compact}
         workspaceView={workspaceView}
-        onWorkspaceViewChange={setWorkspaceView}
+        onWorkspaceViewChange={handleWorkspaceViewChange}
       />
       <div ref={containerRef} className={`flex flex-1 overflow-hidden ${compact ? "flex-col" : ""}`}>
         {showEditor && (
@@ -171,7 +176,7 @@ export function ResumePage({ language }: ResumePageProps) {
         {showPreview && (
           <div style={compact ? undefined : { width: `${100 - splitPercent}%` }} className="overflow-hidden flex-1">
           <Preview
-            html={htmlRef.current}
+            html={html}
             template={template}
             style={style}
             customCss={customCss}

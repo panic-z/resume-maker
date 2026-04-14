@@ -38,4 +38,10 @@ describe("parseResumeToHtml", () => {
     expect(html).toContain('class="resume-section"');
     expect(html).toContain('class="resume-entry-title"');
   });
+
+  it("strips unsafe javascript links from markdown", async () => {
+    const html = await parseResumeToHtml("[Click me](javascript:alert(1))");
+    expect(html).not.toContain("javascript:alert(1)");
+    expect(html).toContain("<a");
+  });
 });
