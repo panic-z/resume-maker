@@ -2,6 +2,7 @@ import type { TemplateName, StyleSettings } from "./storage";
 import { styleToCssVars } from "./storage";
 import type { Language } from "./i18n";
 import { messages } from "./i18n";
+import { scopeCustomCss } from "./scoped-css";
 import classicCss from "../templates/classic.css?inline";
 import modernCss from "../templates/modern.css?inline";
 import minimalCss from "../templates/minimal.css?inline";
@@ -21,19 +22,33 @@ function buildInlineVars(style: StyleSettings): string {
   return Object.entries(vars).map(([k, v]) => `${k}:${v}`).join(";");
 }
 
+function escapeHtmlAttribute(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function htmlLang(language: Language): string {
+  return language === "en" ? "en" : "zh-CN";
+}
+
 export function buildStandaloneHtml(
   resumeHtml: string,
   template: TemplateName,
   style: StyleSettings,
   customCss = "",
+  language: Language = "zh",
 ): string {
   const css = cssMap[template];
-  const inlineVars = buildInlineVars(style);
-  const customBlock = customCss.trim()
-    ? `<style>.resume {\n${customCss}\n}</style>`
+  const inlineVars = escapeHtmlAttribute(buildInlineVars(style));
+  const scopedCustomCss = scopeCustomCss(customCss, ".resume");
+  const customBlock = scopedCustomCss
+    ? `<style>${scopedCustomCss}</style>`
     : "";
   return `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="${htmlLang(language)}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,8 +71,14 @@ ${resumeHtml}
 </html>`;
 }
 
-export function exportHtml(resumeHtml: string, template: TemplateName, style: StyleSettings, customCss = ""): void {
-  const html = buildStandaloneHtml(resumeHtml, template, style, customCss);
+export function exportHtml(
+  resumeHtml: string,
+  template: TemplateName,
+  style: StyleSettings,
+  customCss = "",
+  language: Language = "zh",
+): void {
+  const html = buildStandaloneHtml(resumeHtml, template, style, customCss, language);
   download(html, "resume.html", "text/html");
 }
 
@@ -72,7 +93,7 @@ export function exportPdf(
   customCss = "",
   language: Language = "zh",
 ): void {
-  const html = buildStandaloneHtml(resumeHtml, template, style, customCss);
+  const html = buildStandaloneHtml(resumeHtml, template, style, customCss, language);
   const printWindow = window.open("", "_blank");
   if (!printWindow) {
     alert(messages[language].export.popupBlocked);

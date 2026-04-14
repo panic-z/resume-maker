@@ -22,4 +22,22 @@ describe("buildStandaloneHtml", () => {
     expect(result).toContain("--resume-font-size:16px");
     expect(result).toContain("--resume-accent:#ef4444");
   });
+
+  it("uses the requested document language in standalone exports", () => {
+    const result = buildStandaloneHtml("<h1>Name</h1>", "classic", DEFAULT_STYLE, "", "en");
+    expect(result).toContain('<html lang="en">');
+  });
+
+  it("escapes inline style attribute values so exported HTML stays valid", () => {
+    const result = buildStandaloneHtml("<h1>Name</h1>", "classic", DEFAULT_STYLE);
+    expect(result).toContain("&quot;Noto Serif SC&quot;");
+    expect(result).not.toContain('style="--resume-font-size:14px;--resume-line-height:1.6;--resume-accent:#000000;--resume-font-family:Georgia, "Noto Serif SC"');
+  });
+
+  it("scopes custom CSS with standard selectors instead of CSS nesting", () => {
+    const result = buildStandaloneHtml("<h1>Name</h1>", "classic", DEFAULT_STYLE, ".resume-name { color: red; }");
+    expect(result).toContain(".resume .resume-name {");
+    expect(result).toContain("color: red;");
+    expect(result).not.toContain(".resume {\n.resume-name { color: red; }\n}");
+  });
 });

@@ -4,14 +4,17 @@ import { readFileSync } from "fs";
 test.describe("Resume Maker E2E", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.evaluate(() => localStorage.clear());
+    await page.evaluate(() => {
+      localStorage.clear();
+      localStorage.setItem("resume-maker:language", "zh");
+    });
     await page.reload();
     await page.waitForSelector(".cm-editor");
   });
 
   test("页面加载：显示 Header、编辑器和预览区", async ({ page }) => {
     await expect(page.locator("header")).toBeVisible();
-    await expect(page.locator("text=Resume Maker")).toBeVisible();
+    await expect(page.getByRole("banner").getByText("Resume Maker", { exact: true })).toBeVisible();
 
     const editor = page.locator(".cm-editor");
     await expect(editor).toBeVisible();
@@ -148,13 +151,16 @@ test.describe("Resume Maker E2E", () => {
 test.describe("样式调节面板", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.evaluate(() => localStorage.clear());
+    await page.evaluate(() => {
+      localStorage.clear();
+      localStorage.setItem("resume-maker:language", "zh");
+    });
     await page.reload();
     await page.waitForSelector(".cm-editor");
   });
 
   test("点击样式按钮展开/收起面板", async ({ page }) => {
-    const styleBtn = page.locator("button:text('样式')");
+    const styleBtn = page.getByRole("button", { name: "样式", exact: true });
     await expect(styleBtn).toBeVisible();
 
     await styleBtn.click();
@@ -171,7 +177,7 @@ test.describe("样式调节面板", () => {
   });
 
   test("切换字体：衬线 / 无衬线 / 系统", async ({ page }) => {
-    await page.click("button:text('样式')");
+    await page.getByRole("button", { name: "样式", exact: true }).click();
 
     const preview = page.locator("[class*='template-']");
     await expect(preview).toBeVisible();
@@ -196,7 +202,7 @@ test.describe("样式调节面板", () => {
   });
 
   test("调节字号滑块改变预览字体大小", async ({ page }) => {
-    await page.click("button:text('样式')");
+    await page.getByRole("button", { name: "样式", exact: true }).click();
 
     const preview = page.locator("[class*='template-']");
     const fontSizeBefore = await preview.evaluate(
@@ -216,7 +222,7 @@ test.describe("样式调节面板", () => {
   });
 
   test("调节行距滑块改变预览行高", async ({ page }) => {
-    await page.click("button:text('样式')");
+    await page.getByRole("button", { name: "样式", exact: true }).click();
 
     const preview = page.locator("[class*='template-']");
     const sliders = page.locator("input[type='range']");
@@ -231,7 +237,7 @@ test.describe("样式调节面板", () => {
   });
 
   test("调节边距滑块改变预览内边距", async ({ page }) => {
-    await page.click("button:text('样式')");
+    await page.getByRole("button", { name: "样式", exact: true }).click();
 
     const preview = page.locator("[class*='template-']");
     const paddingBefore = await preview.evaluate((el) => getComputedStyle(el).padding);
@@ -246,7 +252,7 @@ test.describe("样式调节面板", () => {
   });
 
   test("点击预设主题色改变预览强调色", async ({ page }) => {
-    await page.click("button:text('样式')");
+    await page.getByRole("button", { name: "样式", exact: true }).click();
 
     const preview = page.locator("[class*='template-']");
 
@@ -265,7 +271,7 @@ test.describe("样式调节面板", () => {
   });
 
   test("重置按钮恢复默认样式", async ({ page }) => {
-    await page.click("button:text('样式')");
+    await page.getByRole("button", { name: "样式", exact: true }).click();
 
     const sliders = page.locator("input[type='range']");
     await sliders.nth(0).fill("18");
@@ -285,7 +291,7 @@ test.describe("样式调节面板", () => {
   });
 
   test("样式设置持久化：刷新后保留", async ({ page }) => {
-    await page.click("button:text('样式')");
+    await page.getByRole("button", { name: "样式", exact: true }).click();
 
     const sliders = page.locator("input[type='range']");
     await sliders.nth(0).fill("16");
@@ -301,7 +307,7 @@ test.describe("样式调节面板", () => {
   });
 
   test("切换模板联动字体和主题色", async ({ page }) => {
-    await page.click("button:text('样式')");
+    await page.getByRole("button", { name: "样式", exact: true }).click();
 
     await page.click("button:text('现代')");
     const modern = page.locator("[class*='template-modern']");
@@ -327,12 +333,12 @@ test.describe("样式调节面板", () => {
   });
 
   test("导出 HTML 包含自定义样式变量", async ({ page }) => {
-    await page.click("button:text('样式')");
+    await page.getByRole("button", { name: "样式", exact: true }).click();
 
     const sliders = page.locator("input[type='range']");
     await sliders.nth(0).fill("16");
 
-    await page.click("button:text('样式')");
+    await page.getByRole("button", { name: "样式", exact: true }).click();
 
     await page.click("button:text('导出')");
 
@@ -350,7 +356,10 @@ test.describe("样式调节面板", () => {
 test.describe("新增模板", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.evaluate(() => localStorage.clear());
+    await page.evaluate(() => {
+      localStorage.clear();
+      localStorage.setItem("resume-maker:language", "zh");
+    });
     await page.reload();
     await page.waitForSelector(".cm-editor");
   });
@@ -418,7 +427,10 @@ test.describe("新增模板", () => {
 test.describe("自定义 CSS 编辑器", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.evaluate(() => localStorage.clear());
+    await page.evaluate(() => {
+      localStorage.clear();
+      localStorage.setItem("resume-maker:language", "zh");
+    });
     await page.reload();
     await page.waitForSelector(".cm-editor");
   });
@@ -455,7 +467,7 @@ test.describe("自定义 CSS 编辑器", () => {
     await editor.click();
     await page.keyboard.type(".resume-name { color: blue; }", { delay: 10 });
 
-    await page.click("button:text('CSS')");
+    await page.click("button:text('Markdown')");
 
     await expect(page.locator(".resume-name")).toBeVisible();
     const nameColor = await page.locator(".resume-name").evaluate(
@@ -488,7 +500,7 @@ test.describe("自定义 CSS 编辑器", () => {
     await editor.click();
     await page.keyboard.type(".resume-name { font-size: 30px; }", { delay: 10 });
 
-    await page.click("button:text('CSS')");
+    await page.click("button:text('Markdown')");
 
     await page.click("button:text('导出')");
 
@@ -506,7 +518,10 @@ test.describe("自定义 CSS 编辑器", () => {
 test.describe("可视化编辑器", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.evaluate(() => localStorage.clear());
+    await page.evaluate(() => {
+      localStorage.clear();
+      localStorage.setItem("resume-maker:language", "zh");
+    });
     await page.reload();
     await page.waitForSelector(".cm-editor");
   });

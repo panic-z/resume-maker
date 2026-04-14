@@ -25,4 +25,26 @@ describe("StylePopover reset actions", () => {
 
     expect(onCssChange).toHaveBeenCalledWith("");
   });
+
+  test("closes on outside pointer interaction", () => {
+    const onClose = vi.fn();
+
+    render(
+      <StylePopover
+        language="zh"
+        element={{
+          selector: ".resume-name",
+          label: "姓名",
+          rect: new DOMRect(10, 10, 100, 20),
+        }}
+        customCss=""
+        onCssChange={vi.fn()}
+        onClose={onClose}
+      />,
+    );
+
+    fireEvent.pointerDown(document.body);
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
 });
