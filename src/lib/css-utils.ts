@@ -15,23 +15,112 @@ interface ParsedRule {
   raw: string;
 }
 
+function splitDeclarations(body: string): string[] {
+  const declarations: string[] = [];
+  let current = "";
+  let quote: '"' | "'" | null = null;
+  let escaped = false;
+  let parenDepth = 0;
+  let bracketDepth = 0;
+
+  for (const char of body) {
+    current += char;
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+
+    if (char === "\\") {
+      escaped = true;
+      continue;
+    }
+
+    if (quote) {
+      if (char === quote) {
+        quote = null;
+      }
+      continue;
+    }
+
+    if (char === '"' || char === "'") {
+      quote = char;
+      continue;
+    }
+
+    if (char === "(") {
+      parenDepth++;
+      continue;
+    }
+
+    if (char === ")" && parenDepth > 0) {
+      parenDepth--;
+      continue;
+    }
+
+    if (char === "[") {
+      bracketDepth++;
+      continue;
+    }
+
+    if (char === "]" && bracketDepth > 0) {
+      bracketDepth--;
+      continue;
+    }
+
+    if (char === ";" && parenDepth === 0 && bracketDepth === 0) {
+      const declaration = current.slice(0, -1).trim();
+      if (declaration) declarations.push(declaration);
+      current = "";
+    }
+  }
+
+  const trailing = current.trim();
+  if (trailing) declarations.push(trailing);
+
+  return declarations;
+}
+
 function parseRules(css: string): ParsedRule[] {
   const rules: ParsedRule[] = [];
-  const regex = /([^{}]+)\{([^}]*)\}/g;
-  let match;
-  while ((match = regex.exec(css)) !== null) {
-    const selector = match[1].trim();
-    const body = match[2].trim();
-    const properties: CssProperties = {};
-    for (const line of body.split(";")) {
-      const colonIdx = line.indexOf(":");
-      if (colonIdx === -1) continue;
-      const prop = line.slice(0, colonIdx).trim();
-      const val = line.slice(colonIdx + 1).trim();
-      if (prop && val) properties[prop] = val;
+  let index = 0;
+
+  while (index < css.length) {
+    while (index < css.length && /\s/.test(css[index])) index++;
+    if (index >= css.length) break;
+
+    const openBrace = css.indexOf("{", index);
+    if (openBrace === -1) break;
+
+    const selector = css.slice(index, openBrace).trim();
+    let depth = 1;
+    let cursor = openBrace + 1;
+
+    while (cursor < css.length && depth > 0) {
+      const char = css[cursor];
+      if (char === "{") depth++;
+      if (char === "}") depth--;
+      cursor++;
     }
-    rules.push({ selector, properties, raw: match[0].trim() });
+
+    const raw = css.slice(index, cursor).trim();
+    const body = css.slice(openBrace + 1, cursor - 1).trim();
+    const properties: CssProperties = {};
+
+    if (!selector.startsWith("@")) {
+      for (const declaration of splitDeclarations(body)) {
+        const colonIdx = declaration.indexOf(":");
+        if (colonIdx === -1) continue;
+        const prop = declaration.slice(0, colonIdx).trim();
+        const val = declaration.slice(colonIdx + 1).trim();
+        if (prop && val) properties[prop] = val;
+      }
+    }
+
+    rules.push({ selector, properties, raw });
+    index = cursor;
   }
+
   return rules;
 }
 

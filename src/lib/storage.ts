@@ -88,21 +88,23 @@ function clamp(value: unknown, min: number, max: number, fallback: number): numb
 
 const VALID_FONT_FAMILIES: FontFamily[] = ["serif", "sans", "system"];
 
-export function loadStyle(): StyleSettings {
+export function loadStyle(
+  defaults: Pick<StyleSettings, "fontFamily" | "accentColor"> = TEMPLATE_DEFAULTS.classic,
+): StyleSettings {
   try {
     const raw = localStorage.getItem(STYLE_KEY);
-    if (!raw) return DEFAULT_STYLE;
+    if (!raw) return { ...DEFAULT_STYLE, ...defaults };
     const parsed = JSON.parse(raw);
     return {
       fontSize: clamp(parsed.fontSize, 10, 18, DEFAULT_STYLE.fontSize),
       lineHeight: clamp(parsed.lineHeight, 1.0, 2.2, DEFAULT_STYLE.lineHeight),
       accentColor: typeof parsed.accentColor === "string" && /^#[0-9a-fA-F]{6}$/.test(parsed.accentColor)
-        ? parsed.accentColor : DEFAULT_STYLE.accentColor,
-      fontFamily: VALID_FONT_FAMILIES.includes(parsed.fontFamily) ? parsed.fontFamily : DEFAULT_STYLE.fontFamily,
+        ? parsed.accentColor : defaults.accentColor,
+      fontFamily: VALID_FONT_FAMILIES.includes(parsed.fontFamily) ? parsed.fontFamily : defaults.fontFamily,
       pagePadding: clamp(parsed.pagePadding, 10, 30, DEFAULT_STYLE.pagePadding),
     };
   } catch {
-    return DEFAULT_STYLE;
+    return { ...DEFAULT_STYLE, ...defaults };
   }
 }
 

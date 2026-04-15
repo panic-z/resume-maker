@@ -20,7 +20,7 @@ export function useResume(language: Language) {
     return loadTemplate();
   });
 
-  const [style, setStyleState] = useState<StyleSettings>(() => loadStyle());
+  const [style, setStyleState] = useState<StyleSettings>(() => loadStyle(TEMPLATE_DEFAULTS[template]));
   const [customCss, setCustomCssState] = useState<string>(() => loadCustomCss());
   const effectiveMarkdown = isDefaultResume(markdown)
     ? getDefaultResume(language)

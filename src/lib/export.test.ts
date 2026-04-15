@@ -40,4 +40,27 @@ describe("buildStandaloneHtml", () => {
     expect(result).toContain("color: red;");
     expect(result).not.toContain(".resume {\n.resume-name { color: red; }\n}");
   });
+
+  it("escapes closing style tags inside custom CSS so exports cannot break out of the style block", () => {
+    const result = buildStandaloneHtml(
+      "<h1>Name</h1>",
+      "classic",
+      DEFAULT_STYLE,
+      ".resume-name { color: red; }</style><script>window.__resumeMakerXss = true</script><style>",
+    );
+    expect(result).not.toContain("</style><script>window.__resumeMakerXss = true</script><style>");
+    expect(result).toContain('<\\/style><script>window.__resumeMakerXss = true</script><style>');
+  });
+
+  it("preserves valid CSS values that contain HTML-like characters", () => {
+    const result = buildStandaloneHtml(
+      "<h1>Name</h1>",
+      "classic",
+      DEFAULT_STYLE,
+      '.resume-name::after { content: "> & <"; }',
+    );
+    expect(result).toContain('.resume .resume-name::after {');
+    expect(result).toContain('content: "> & <";');
+    expect(result).not.toContain('content: "&gt; &amp; &lt;";');
+  });
 });
