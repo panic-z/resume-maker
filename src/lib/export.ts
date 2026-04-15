@@ -30,6 +30,10 @@ function escapeHtmlAttribute(value: string): string {
     .replaceAll(">", "&gt;");
 }
 
+function escapeStyleText(value: string): string {
+  return value.replace(/<\/style/gi, "<\\/style");
+}
+
 function htmlLang(language: Language): string {
   return language === "en" ? "en" : "zh-CN";
 }
@@ -45,7 +49,7 @@ export function buildStandaloneHtml(
   const inlineVars = escapeHtmlAttribute(buildInlineVars(style));
   const scopedCustomCss = scopeCustomCss(customCss, ".resume");
   const customBlock = scopedCustomCss
-    ? `<style>${scopedCustomCss}</style>`
+    ? `<style>${escapeStyleText(scopedCustomCss)}</style>`
     : "";
   return `<!DOCTYPE html>
 <html lang="${htmlLang(language)}">

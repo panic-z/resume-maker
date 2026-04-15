@@ -5,11 +5,13 @@ import { useResume } from "./useResume";
 import { DEFAULT_RESUMES } from "../data/default-resume";
 
 function Probe({ language }: { language: "zh" | "en" }) {
-  const { markdown, setMarkdown } = useResume(language);
+  const { markdown, setMarkdown, template, style } = useResume(language);
 
   return (
     <div>
       <pre data-testid="markdown">{markdown}</pre>
+      <pre data-testid="template">{template}</pre>
+      <pre data-testid="style">{JSON.stringify(style)}</pre>
       <button type="button" onClick={() => setMarkdown(DEFAULT_RESUMES.zh)}>
         set zh default
       </button>
@@ -35,5 +37,18 @@ describe("useResume language switching", () => {
     rerender(<Probe language="en" />);
 
     expect(screen.getByTestId("markdown")).toHaveTextContent("Alex Carter");
+  });
+});
+
+describe("useResume template defaults", () => {
+  test("applies stored template defaults when style settings are missing", () => {
+    localStorage.clear();
+    localStorage.setItem("resume-maker:template", "modern");
+
+    render(<Probe language="zh" />);
+
+    expect(screen.getByTestId("template")).toHaveTextContent("modern");
+    expect(screen.getByTestId("style")).toHaveTextContent('"fontFamily":"sans"');
+    expect(screen.getByTestId("style")).toHaveTextContent('"accentColor":"#3b82f6"');
   });
 });

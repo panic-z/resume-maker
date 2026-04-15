@@ -1,6 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react";
-import { Editor } from "./Editor";
-import { CssEditor } from "./CssEditor";
+import { useState, useCallback, useRef, useEffect, lazy, Suspense } from "react";
 import { Preview } from "./Preview";
 import type { SelectedElement } from "./Preview";
 import { Toolbar } from "./Toolbar";
@@ -11,6 +9,9 @@ import { parseResumeToHtml } from "../lib/markdown";
 import { exportPdf, exportHtml, exportMarkdown } from "../lib/export";
 import type { Language } from "../lib/i18n";
 import { isCompactLayout } from "./preview-layout";
+
+const Editor = lazy(async () => import("./Editor").then((module) => ({ default: module.Editor })));
+const CssEditor = lazy(async () => import("./CssEditor").then((module) => ({ default: module.CssEditor })));
 
 interface ResumePageProps {
   language: Language;
@@ -160,11 +161,13 @@ export function ResumePage({ language }: ResumePageProps) {
             style={compact ? undefined : { width: `${splitPercent}%` }}
             className={`overflow-hidden ${compact ? "flex-1 border-b border-gray-200" : ""}`}
           >
-          {editorTab === "markdown" ? (
-            <Editor value={markdown} onChange={setMarkdown} />
-          ) : (
-            <CssEditor value={customCss} onChange={setCustomCss} />
-          )}
+            <Suspense fallback={<div className="h-full bg-white" data-testid="editor-loading" />}>
+              {editorTab === "markdown" ? (
+                <Editor value={markdown} onChange={setMarkdown} />
+              ) : (
+                <CssEditor value={customCss} onChange={setCustomCss} />
+              )}
+            </Suspense>
           </div>
         )}
         {!compact && (

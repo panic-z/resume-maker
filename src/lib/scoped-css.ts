@@ -32,7 +32,7 @@ function scopeRule(header: string, body: string, scope: string): string {
     trimmedHeader.startsWith("@font-face") ||
     trimmedHeader.startsWith("@page")
   ) {
-    return `${trimmedHeader} {\n${trimmedBody}\n}`;
+    return "";
   }
 
   const selectors = trimmedHeader
@@ -41,6 +41,63 @@ function scopeRule(header: string, body: string, scope: string): string {
     .join(", ");
 
   return `${selectors} {\n${trimmedBody}\n}`;
+}
+
+function findBlockEnd(source: string, start: number): number {
+  let depth = 1;
+  let cursor = start;
+  let quote: '"' | "'" | null = null;
+  let escaped = false;
+  let inComment = false;
+
+  while (cursor < source.length && depth > 0) {
+    const char = source[cursor];
+    const next = source[cursor + 1];
+
+    if (inComment) {
+      if (char === "*" && next === "/") {
+        inComment = false;
+        cursor += 2;
+        continue;
+      }
+      cursor++;
+      continue;
+    }
+
+    if (escaped) {
+      escaped = false;
+      cursor++;
+      continue;
+    }
+
+    if (quote) {
+      if (char === "\\") {
+        escaped = true;
+      } else if (char === quote) {
+        quote = null;
+      }
+      cursor++;
+      continue;
+    }
+
+    if (char === "/" && next === "*") {
+      inComment = true;
+      cursor += 2;
+      continue;
+    }
+
+    if (char === '"' || char === "'") {
+      quote = char;
+      cursor++;
+      continue;
+    }
+
+    if (char === "{") depth++;
+    if (char === "}") depth--;
+    cursor++;
+  }
+
+  return cursor;
 }
 
 export function scopeCustomCss(css: string, scope: string): string {
@@ -62,14 +119,7 @@ export function scopeCustomCss(css: string, scope: string): string {
     }
 
     const header = trimmed.slice(index, openBrace);
-    let depth = 1;
-    let cursor = openBrace + 1;
-    while (cursor < trimmed.length && depth > 0) {
-      const char = trimmed[cursor];
-      if (char === "{") depth++;
-      if (char === "}") depth--;
-      cursor++;
-    }
+    const cursor = findBlockEnd(trimmed, openBrace + 1);
 
     const body = trimmed.slice(openBrace + 1, cursor - 1);
     const scopedRule = scopeRule(header, body, scope);
