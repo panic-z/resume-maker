@@ -5,6 +5,7 @@ import {
   loadStyle, saveStyle,
   loadCustomCss, saveCustomCss,
   DEFAULT_STYLE, TEMPLATE_DEFAULTS,
+  type PersistedResumeProject,
 } from "../lib/storage";
 import type { TemplateName, StyleSettings } from "../lib/storage";
 import type { Language } from "../lib/i18n";
@@ -96,5 +97,34 @@ export function useResume(language: Language) {
     setCustomCssState(css);
   }, []);
 
-  return { markdown: effectiveMarkdown, setMarkdown, template, changeTemplate, style, changeStyle, resetStyle, customCss, setCustomCss };
+  const importMarkdown = useCallback((nextMarkdown: string) => {
+    markdownRef.current = nextMarkdown;
+    setMarkdown(nextMarkdown);
+  }, []);
+
+  const importProject = useCallback((project: PersistedResumeProject) => {
+    markdownRef.current = project.markdown;
+    styleRef.current = project.style;
+    customCssRef.current = project.customCss;
+
+    setMarkdown(project.markdown);
+    setTemplate(project.template);
+    setStyleState(project.style);
+    setCustomCssState(project.customCss);
+    saveTemplate(project.template);
+  }, []);
+
+  return {
+    markdown: effectiveMarkdown,
+    setMarkdown,
+    template,
+    changeTemplate,
+    style,
+    changeStyle,
+    resetStyle,
+    customCss,
+    setCustomCss,
+    importMarkdown,
+    importProject,
+  };
 }
