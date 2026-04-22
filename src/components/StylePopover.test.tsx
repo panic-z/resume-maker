@@ -47,4 +47,65 @@ describe("StylePopover reset actions", () => {
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  test("keeps the popover within the viewport when the selected element is near the bottom", () => {
+    Object.defineProperty(window, "innerHeight", {
+      configurable: true,
+      value: 600,
+    });
+
+    const { container } = render(
+      <StylePopover
+        language="zh"
+        element={{
+          selector: ".resume-name",
+          label: "姓名",
+          rect: new DOMRect(10, 580, 100, 20),
+        }}
+        customCss=""
+        onCssChange={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    const popover = container.firstElementChild as HTMLDivElement;
+    expect(popover.style.top).not.toBe("572px");
+  });
+
+  test("caps the popover width so it does not overflow narrow viewports", () => {
+    const { container } = render(
+      <StylePopover
+        language="zh"
+        element={{
+          selector: ".resume-name",
+          label: "姓名",
+          rect: new DOMRect(10, 10, 100, 20),
+        }}
+        customCss=""
+        onCssChange={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    expect(container.firstElementChild).toHaveClass("max-w-[calc(100vw-16px)]");
+  });
+
+  test("does not render an invalid placeholder unit for unset font size", () => {
+    render(
+      <StylePopover
+        language="zh"
+        element={{
+          selector: ".resume-name",
+          label: "姓名",
+          rect: new DOMRect(10, 10, 100, 20),
+        }}
+        customCss=""
+        onCssChange={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByText("—px")).not.toBeInTheDocument();
+    expect(screen.getAllByText("—").length).toBeGreaterThan(0);
+  });
 });

@@ -95,12 +95,21 @@ function sanitizeUrl(value: Properties[string]): Properties[string] {
   return value;
 }
 
+function isExternalHttpUrl(value: Properties[string]): value is string {
+  if (typeof value !== "string") return false;
+  return /^https?:\/\//i.test(value);
+}
+
 function sanitizeElementTree(node: RootContent | ElementContent): void {
   if (node.type !== "element") return;
 
   if (node.properties) {
     if ("href" in node.properties) {
       node.properties.href = sanitizeUrl(node.properties.href);
+      if (isExternalHttpUrl(node.properties.href)) {
+        node.properties.target = "_blank";
+        node.properties.rel = "noreferrer noopener";
+      }
     }
     if ("src" in node.properties) {
       node.properties.src = sanitizeUrl(node.properties.src);

@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { TemplateName, StyleSettings } from "./storage";
 import { styleToCssVars } from "./storage";
 import type { Language } from "./i18n";
@@ -16,6 +17,22 @@ const cssMap: Record<TemplateName, string> = {
   professional: professionalCss,
   creative: creativeCss,
 };
+
+const PRINT_READY_TIMEOUT_MS = 2_000;
+
+export const resumePaperBackgroundContract = {
+  backgroundColor: "#ffffff",
+  backgroundImage: "var(--resume-paper-overlay), var(--resume-paper-background)",
+  backgroundPosition: "var(--resume-paper-background-position)",
+  backgroundRepeat: "var(--resume-paper-background-repeat)",
+  backgroundSize: "var(--resume-paper-background-size)",
+} as const satisfies CSSProperties;
+
+export function resumePaperBackgroundCssText(): string {
+  return Object.entries(resumePaperBackgroundContract)
+    .map(([property, value]) => `${property.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`)}: ${value};`)
+    .join("\n  ");
+}
 
 function buildInlineVars(style: StyleSettings): string {
   const vars = styleToCssVars(style);
@@ -63,7 +80,15 @@ export function buildStandaloneHtml(
 ${customBlock}
 <style>
 body { margin: 0; display: flex; justify-content: center; background: #f3f4f6; }
-.resume { width: 210mm; min-height: 297mm; padding: ${style.pagePadding}mm; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+.resume {
+  width: 210mm;
+  min-height: 297mm;
+  padding: ${style.pagePadding}mm;
+  ${resumePaperBackgroundCssText()}
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
 @media print { body { background: #fff; } .resume { box-shadow: none; padding: ${Math.max(style.pagePadding - 5, 10)}mm; width: 100%; } }
 </style>
 </head>
@@ -105,12 +130,41 @@ export function exportPdf(
   }
   printWindow.document.write(html);
   printWindow.document.close();
-  const triggerPrint = () => printWindow.print();
-  if (printWindow.document.readyState === "complete") {
-    setTimeout(triggerPrint, 0);
-  } else {
-    printWindow.addEventListener("load", triggerPrint);
+
+  void waitForPrintWindowReady(printWindow).then(() => {
+    setTimeout(() => {
+      if (printWindow.closed) {
+        return;
+      }
+      printWindow.print();
+    }, 0);
+  });
+}
+
+async function waitForPrintWindowReady(printWindow: Window): Promise<void> {
+  if (printWindow.document.readyState !== "complete") {
+    await Promise.race([
+      new Promise<void>((resolve) => {
+        printWindow.addEventListener("load", () => resolve(), { once: true });
+      }),
+      delay(PRINT_READY_TIMEOUT_MS),
+    ]);
   }
+
+  const fonts = printWindow.document.fonts;
+  if (fonts?.ready) {
+    try {
+      await Promise.race([fonts.ready, delay(PRINT_READY_TIMEOUT_MS)]);
+    } catch {
+      // Fall back to printing even if the browser can't fully resolve font loading.
+    }
+  }
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
 
 function download(content: string, filename: string, mime: string): void {

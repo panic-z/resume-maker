@@ -6,15 +6,20 @@ import "../templates/professional.css";
 import "../templates/creative.css";
 import { styleToCssVars } from "../lib/storage";
 import type { TemplateName, StyleSettings } from "../lib/storage";
+import { resumePaperBackgroundContract } from "../lib/export";
 import { messages, type Language } from "../lib/i18n";
-import { getPreviewScale } from "./preview-layout";
+import { getPreviewScale, PAGE_HEIGHT_PX } from "./preview-layout";
 import { scopeCustomCss } from "../lib/scoped-css";
+
+let previewInstanceCount = 0;
 
 export interface SelectedElement {
   selector: string;
   label: string;
   rect: DOMRect;
 }
+
+const previewPaperBackgroundStyles: React.CSSProperties = resumePaperBackgroundContract;
 
 interface PreviewProps {
   html: string;
@@ -55,15 +60,18 @@ export function Preview({ html, template, style, customCss, language, editMode, 
   const cssVars = styleToCssVars(style);
   const resumeRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const previewIdRef = useRef(`resume-preview-${++previewInstanceCount}`);
+  const [contentHeight, setContentHeight] = useState(PAGE_HEIGHT_PX);
   const [scale, setScale] = useState(1);
+  const previewId = previewIdRef.current;
 
   useEffect(() => {
     const el = document.createElement("style");
     el.setAttribute("data-resume-custom", "");
-    el.textContent = scopeCustomCss(customCss, "#resume-preview");
+    el.textContent = scopeCustomCss(customCss, `#${previewId}`);
     document.head.appendChild(el);
     return () => { el.remove(); };
-  }, [customCss]);
+  }, [customCss, previewId]);
 
   const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!editMode || !onElementSelect || !resumeRef.current) return;
@@ -72,6 +80,26 @@ export function Preview({ html, template, style, customCss, language, editMode, 
     const selected = detectElement(target, resumeRef.current, language);
     onElementSelect(selected);
   }, [editMode, language, onElementSelect]);
+
+  useEffect(() => {
+    const updateContentHeight = () => {
+      if (!resumeRef.current) return;
+      setContentHeight(Math.max(PAGE_HEIGHT_PX, resumeRef.current.scrollHeight));
+    };
+
+    updateContentHeight();
+
+    if (typeof ResizeObserver === "undefined" || !resumeRef.current) {
+      return;
+    }
+
+    const observer = new ResizeObserver(updateContentHeight);
+    observer.observe(resumeRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [html, template, style, customCss]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -93,17 +121,23 @@ export function Preview({ html, template, style, customCss, language, editMode, 
   }, []);
 
   const scaledWidth = `${794 * scale}px`;
-  const scaledHeight = `${1123 * scale}px`;
+  const scaledHeight = `${contentHeight * scale}px`;
+  const pageBreakOffsets = Array.from(
+    { length: Math.floor(contentHeight / PAGE_HEIGHT_PX) },
+    (_, index) => (index + 1) * PAGE_HEIGHT_PX * scale,
+  );
 
   return (
     <div ref={containerRef} className="h-full overflow-auto bg-gray-100 p-4 md:p-8 relative">
-      <div className="mx-auto transition-[width,height] duration-200" style={{ width: scaledWidth, minHeight: scaledHeight }}>
+      <div className="relative mx-auto transition-[width,height] duration-200" style={{ width: scaledWidth, minHeight: scaledHeight }}>
         <div
           ref={resumeRef}
-          id="resume-preview"
+          id={previewId}
+          data-preview-root="true"
           className={`template-${template} bg-white shadow-lg w-[210mm] min-h-[297mm] ${editMode ? "resume-edit-mode" : ""}`}
           style={{
             ...cssVars,
+            ...previewPaperBackgroundStyles,
             padding: `${style.pagePadding}mm`,
             transform: `scale(${scale})`,
             transformOrigin: "top left",
@@ -111,6 +145,15 @@ export function Preview({ html, template, style, customCss, language, editMode, 
           onClick={handleClick}
           dangerouslySetInnerHTML={{ __html: html }}
         />
+        {pageBreakOffsets.map((offset) => (
+          <div
+            key={offset}
+            aria-hidden="true"
+            data-page-break-marker="true"
+            className="pointer-events-none absolute inset-x-0 z-10 border-t border-dashed border-gray-400/70"
+            style={{ top: `${offset}px` }}
+          />
+        ))}
       </div>
       {editMode && (
         <div className="absolute top-2 right-2 bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded">

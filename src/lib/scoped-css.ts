@@ -1,5 +1,59 @@
+function stripBlockComments(value: string): string {
+  let result = "";
+  let index = 0;
+  let quote: '"' | "'" | null = null;
+  let escaped = false;
+
+  while (index < value.length) {
+    const char = value[index];
+    const next = value[index + 1];
+
+    if (escaped) {
+      result += char;
+      escaped = false;
+      index++;
+      continue;
+    }
+
+    if (quote) {
+      result += char;
+      if (char === "\\") {
+        escaped = true;
+      } else if (char === quote) {
+        quote = null;
+      }
+      index++;
+      continue;
+    }
+
+    if (char === '"' || char === "'") {
+      quote = char;
+      result += char;
+      index++;
+      continue;
+    }
+
+    if (char === "/" && next === "*") {
+      index += 2;
+      while (index < value.length) {
+        if (value[index] === "*" && value[index + 1] === "/") {
+          index += 2;
+          break;
+        }
+        index++;
+      }
+      continue;
+    }
+
+    result += char;
+    index++;
+  }
+
+  return result;
+}
+
 function prefixSelector(selector: string, scope: string): string {
-  const trimmed = selector.trim();
+  const trimmed = stripBlockComments(selector).trim();
   if (!trimmed) return scope;
   if (trimmed.includes("&")) return trimmed.replaceAll("&", scope);
   if (trimmed === ":root") return scope;
@@ -9,8 +63,78 @@ function prefixSelector(selector: string, scope: string): string {
   return `${scope} ${trimmed}`;
 }
 
+function splitSelectors(selectorList: string): string[] {
+  const selectors: string[] = [];
+  let current = "";
+  let quote: '"' | "'" | null = null;
+  let escaped = false;
+  let parenDepth = 0;
+  let bracketDepth = 0;
+
+  for (const char of selectorList) {
+    if (escaped) {
+      current += char;
+      escaped = false;
+      continue;
+    }
+
+    if (quote) {
+      current += char;
+      if (char === "\\") {
+        escaped = true;
+      } else if (char === quote) {
+        quote = null;
+      }
+      continue;
+    }
+
+    if (char === '"' || char === "'") {
+      quote = char;
+      current += char;
+      continue;
+    }
+
+    if (char === "(") {
+      parenDepth++;
+      current += char;
+      continue;
+    }
+
+    if (char === ")" && parenDepth > 0) {
+      parenDepth--;
+      current += char;
+      continue;
+    }
+
+    if (char === "[") {
+      bracketDepth++;
+      current += char;
+      continue;
+    }
+
+    if (char === "]" && bracketDepth > 0) {
+      bracketDepth--;
+      current += char;
+      continue;
+    }
+
+    if (char === "," && parenDepth === 0 && bracketDepth === 0) {
+      const trimmed = current.trim();
+      if (trimmed) selectors.push(trimmed);
+      current = "";
+      continue;
+    }
+
+    current += char;
+  }
+
+  const trailing = current.trim();
+  if (trailing) selectors.push(trailing);
+  return selectors;
+}
+
 function scopeRule(header: string, body: string, scope: string): string {
-  const trimmedHeader = header.trim();
+  const trimmedHeader = stripBlockComments(header).trim();
   const trimmedBody = body.trim();
 
   if (!trimmedHeader) {
@@ -35,8 +159,7 @@ function scopeRule(header: string, body: string, scope: string): string {
     return "";
   }
 
-  const selectors = trimmedHeader
-    .split(",")
+  const selectors = splitSelectors(trimmedHeader)
     .map((selector) => prefixSelector(selector, scope))
     .join(", ");
 

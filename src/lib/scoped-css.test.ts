@@ -27,4 +27,16 @@ describe("scopeCustomCss", () => {
     expect(result).toContain("color: red;");
     expect(result.trim().endsWith("}")).toBe(true);
   });
+
+  it("ignores leading comments before selectors", () => {
+    const result = scopeCustomCss("/* note */ .resume-name { color: red; }", ".resume");
+    expect(result).toContain(".resume .resume-name {");
+    expect(result).toContain("color: red;");
+    expect(result).not.toContain("/* note */ .resume-name");
+  });
+
+  it("does not split selector lists on commas inside functional pseudo-classes", () => {
+    const result = scopeCustomCss(".resume-section:is(.primary, .secondary) { color: red; }", ".resume");
+    expect(result).toContain(".resume .resume-section:is(.primary, .secondary) {");
+  });
 });

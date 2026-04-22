@@ -44,4 +44,16 @@ describe("parseResumeToHtml", () => {
     expect(html).not.toContain("javascript:alert(1)");
     expect(html).toContain("<a");
   });
+
+  it("does not pass through raw html with event handlers", async () => {
+    const html = await parseResumeToHtml('<img src="x" onerror="alert(1)">');
+    expect(html).not.toContain("onerror=");
+    expect(html).not.toContain("<img");
+  });
+
+  it("adds safe external link attributes so preview clicks do not take over the editor tab", async () => {
+    const html = await parseResumeToHtml("[Portfolio](https://example.com)");
+    expect(html).toContain('target="_blank"');
+    expect(html).toContain('rel="noreferrer noopener"');
+  });
 });

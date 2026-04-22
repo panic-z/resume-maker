@@ -12,10 +12,17 @@ interface StylePopoverProps {
   onClose: () => void;
 }
 
+const POPOVER_WIDTH = 288;
+const POPOVER_MAX_HEIGHT = 352;
+
 function parseNum(val: string | undefined, fallback: string): string {
   if (!val) return fallback;
   const n = parseFloat(val);
   return isNaN(n) ? fallback : String(n);
+}
+
+function formatDisplayValue(value: string, unit: string): string {
+  return value === "—" ? value : `${value}${unit}`;
 }
 
 function parseBorder(value: string | undefined): { width: string; style: string; color: string } {
@@ -85,13 +92,13 @@ export function StylePopover({ language, element, customCss, onCssChange, onClos
     onCssChange(removeCustomCssRule(customCssRef.current, element.selector));
   }, [element.selector, onCssChange]);
 
-  const top = Math.max(8, element.rect.top - 8);
-  const left = Math.max(8, Math.min(element.rect.right + 12, window.innerWidth - 300));
+  const top = Math.max(8, Math.min(element.rect.top - 8, window.innerHeight - POPOVER_MAX_HEIGHT - 8));
+  const left = Math.max(8, Math.min(element.rect.right + 12, window.innerWidth - POPOVER_WIDTH - 8));
 
   return (
     <div
       ref={popoverRef}
-      className="fixed z-50 w-72 bg-white border border-gray-200 rounded-lg shadow-xl text-xs"
+      className="fixed z-50 w-72 max-w-[calc(100vw-16px)] bg-white border border-gray-200 rounded-lg shadow-xl text-xs"
       style={{ top, left }}
     >
       <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100 bg-gray-50 rounded-t-lg">
@@ -112,16 +119,28 @@ export function StylePopover({ language, element, customCss, onCssChange, onClos
         </button>
         <Section title={copy.sections.font}>
           <Row label={copy.rows.size}>
-            <input
-              type="range"
-              min={8}
-              max={36}
-              step={1}
-              value={parseNum(props["font-size"]?.replace("px", ""), "14")}
-              onChange={(e) => apply({ "font-size": `${e.target.value}px` })}
-              className="w-20 h-1 accent-gray-700"
-            />
-            <span className="text-gray-400 w-8 text-right">{parseNum(props["font-size"]?.replace("px", ""), "—")}px</span>
+            {(() => {
+              const fontSizeValue = parseNum(props["font-size"]?.replace("px", ""), "14");
+              const fontSizeDisplay = formatDisplayValue(
+                parseNum(props["font-size"]?.replace("px", ""), "—"),
+                "px",
+              );
+
+              return (
+                <>
+                  <input
+                    type="range"
+                    min={8}
+                    max={36}
+                    step={1}
+                    value={fontSizeValue}
+                    onChange={(e) => apply({ "font-size": `${e.target.value}px` })}
+                    className="w-20 h-1 accent-gray-700"
+                  />
+                  <span className="text-gray-400 w-8 text-right">{fontSizeDisplay}</span>
+                </>
+              );
+            })()}
           </Row>
           <Row label={copy.rows.weight}>
             <div className="flex gap-0.5">

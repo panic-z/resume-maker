@@ -51,6 +51,34 @@ type Messages = {
     lineHeight: string;
     pagePadding: string;
     accentColor: string;
+    background: string;
+    backgroundModes: Record<"preset" | "custom-gradient" | "custom-image", string>;
+    backgroundOptions: Record<"plain" | "corner-frame" | "soft-arc" | "grid-wash" | "editorial-bands", string>;
+    backgroundGradient: {
+      fromColor: string;
+      toColor: string;
+      direction: string;
+      softness: string;
+      directionOptions: Record<"to-bottom" | "to-bottom-right" | "to-right", string>;
+      softnessHint: string;
+    };
+    backgroundImage: {
+      upload: string;
+      replace: string;
+      remove: string;
+      fit: string;
+      note: string;
+      empty: string;
+      fileName: string;
+      selected: string;
+      fitOptions: Record<"cover" | "contain" | "repeat", string>;
+      errors: {
+        unsupportedType: string;
+        fileTooLarge: string;
+        readFailed: string;
+        persistenceFailed: string;
+      };
+    };
     reset: string;
     fontOptions: Record<"serif" | "sans" | "system", string>;
   };
@@ -154,6 +182,52 @@ export const messages: Record<Language, Messages> = {
       lineHeight: "行距",
       pagePadding: "边距",
       accentColor: "主题色",
+      background: "背景",
+      backgroundModes: {
+        preset: "预设",
+        "custom-gradient": "自定义渐变",
+        "custom-image": "自定义图片",
+      },
+      backgroundOptions: {
+        plain: "纯白",
+        "corner-frame": "角框",
+        "soft-arc": "柔弧",
+        "grid-wash": "网格",
+        "editorial-bands": "编排条带",
+      },
+      backgroundGradient: {
+        fromColor: "起始颜色",
+        toColor: "结束颜色",
+        direction: "方向",
+        softness: "柔和度",
+        directionOptions: {
+          "to-bottom": "向下",
+          "to-bottom-right": "右下",
+          "to-right": "向右",
+        },
+        softnessHint: "柔和度将在后续任务中启用",
+      },
+      backgroundImage: {
+        upload: "上传图片",
+        replace: "替换图片",
+        remove: "移除图片",
+        fit: "铺放方式",
+        note: "图片背景会增大导出文件体积",
+        empty: "暂未选择图片，上传功能将在后续任务中接入。",
+        fileName: "当前图片",
+        selected: "已选择图片",
+        fitOptions: {
+          cover: "覆盖",
+          contain: "完整显示",
+          repeat: "平铺",
+        },
+        errors: {
+          unsupportedType: "仅支持 PNG、JPEG 或 WebP",
+          fileTooLarge: "图片不能超过 1.5 MB",
+          readFailed: "图片读取失败，请重试",
+          persistenceFailed: "图片已应用，但无法保存到下次刷新",
+        },
+      },
       reset: "重置全部样式",
       fontOptions: {
         serif: "衬线体",
@@ -278,6 +352,52 @@ export const messages: Record<Language, Messages> = {
       lineHeight: "Line Height",
       pagePadding: "Padding",
       accentColor: "Accent",
+      background: "Background",
+      backgroundModes: {
+        preset: "Preset",
+        "custom-gradient": "Custom Gradient",
+        "custom-image": "Custom Image",
+      },
+      backgroundOptions: {
+        plain: "Plain",
+        "corner-frame": "Corner Frame",
+        "soft-arc": "Soft Arc",
+        "grid-wash": "Grid Wash",
+        "editorial-bands": "Editorial Bands",
+      },
+      backgroundGradient: {
+        fromColor: "From Color",
+        toColor: "To Color",
+        direction: "Direction",
+        softness: "Softness",
+        directionOptions: {
+          "to-bottom": "Down",
+          "to-bottom-right": "Down Right",
+          "to-right": "Right",
+        },
+        softnessHint: "Softness will be enabled in a follow-up task",
+      },
+      backgroundImage: {
+        upload: "Upload Image",
+        replace: "Replace Image",
+        remove: "Remove Image",
+        fit: "Fit",
+        note: "Image backgrounds increase export file size",
+        empty: "No image selected yet. Upload will be wired in the next task.",
+        fileName: "Current Image",
+        selected: "Image selected",
+        fitOptions: {
+          cover: "Cover",
+          contain: "Contain",
+          repeat: "Repeat",
+        },
+        errors: {
+          unsupportedType: "Only PNG, JPEG, or WebP is supported",
+          fileTooLarge: "Image must be 1.5 MB or smaller",
+          readFailed: "Image reading failed. Please try again.",
+          persistenceFailed: "Image was applied, but could not be saved for refresh",
+        },
+      },
       reset: "Reset All Styles",
       fontOptions: {
         serif: "Serif",

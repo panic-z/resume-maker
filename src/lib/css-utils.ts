@@ -81,6 +81,60 @@ function splitDeclarations(body: string): string[] {
   return declarations;
 }
 
+function stripBlockComments(value: string): string {
+  let result = "";
+  let index = 0;
+  let quote: '"' | "'" | null = null;
+  let escaped = false;
+
+  while (index < value.length) {
+    const char = value[index];
+    const next = value[index + 1];
+
+    if (escaped) {
+      result += char;
+      escaped = false;
+      index++;
+      continue;
+    }
+
+    if (quote) {
+      result += char;
+      if (char === "\\") {
+        escaped = true;
+      } else if (char === quote) {
+        quote = null;
+      }
+      index++;
+      continue;
+    }
+
+    if (char === '"' || char === "'") {
+      quote = char;
+      result += char;
+      index++;
+      continue;
+    }
+
+    if (char === "/" && next === "*") {
+      index += 2;
+      while (index < value.length) {
+        if (value[index] === "*" && value[index + 1] === "/") {
+          index += 2;
+          break;
+        }
+        index++;
+      }
+      continue;
+    }
+
+    result += char;
+    index++;
+  }
+
+  return result;
+}
+
 function parseRules(css: string): ParsedRule[] {
   const rules: ParsedRule[] = [];
   let index = 0;
@@ -93,15 +147,7 @@ function parseRules(css: string): ParsedRule[] {
     if (openBrace === -1) break;
 
     const selector = css.slice(index, openBrace).trim();
-    let depth = 1;
-    let cursor = openBrace + 1;
-
-    while (cursor < css.length && depth > 0) {
-      const char = css[cursor];
-      if (char === "{") depth++;
-      if (char === "}") depth--;
-      cursor++;
-    }
+    const cursor = findBlockEnd(css, openBrace + 1);
 
     const raw = css.slice(index, cursor).trim();
     const body = css.slice(openBrace + 1, cursor - 1).trim();
@@ -109,10 +155,11 @@ function parseRules(css: string): ParsedRule[] {
 
     if (!selector.startsWith("@")) {
       for (const declaration of splitDeclarations(body)) {
-        const colonIdx = declaration.indexOf(":");
+        const cleanedDeclaration = stripBlockComments(declaration).trim();
+        const colonIdx = cleanedDeclaration.indexOf(":");
         if (colonIdx === -1) continue;
-        const prop = declaration.slice(0, colonIdx).trim();
-        const val = declaration.slice(colonIdx + 1).trim();
+        const prop = cleanedDeclaration.slice(0, colonIdx).trim();
+        const val = cleanedDeclaration.slice(colonIdx + 1).trim();
         if (prop && val) properties[prop] = val;
       }
     }
@@ -124,22 +171,90 @@ function parseRules(css: string): ParsedRule[] {
   return rules;
 }
 
+function findBlockEnd(source: string, start: number): number {
+  let depth = 1;
+  let cursor = start;
+  let quote: '"' | "'" | null = null;
+  let escaped = false;
+  let inComment = false;
+
+  while (cursor < source.length && depth > 0) {
+    const char = source[cursor];
+    const next = source[cursor + 1];
+
+    if (inComment) {
+      if (char === "*" && next === "/") {
+        inComment = false;
+        cursor += 2;
+        continue;
+      }
+      cursor++;
+      continue;
+    }
+
+    if (escaped) {
+      escaped = false;
+      cursor++;
+      continue;
+    }
+
+    if (quote) {
+      if (char === "\\") {
+        escaped = true;
+      } else if (char === quote) {
+        quote = null;
+      }
+      cursor++;
+      continue;
+    }
+
+    if (char === "/" && next === "*") {
+      inComment = true;
+      cursor += 2;
+      continue;
+    }
+
+    if (char === '"' || char === "'") {
+      quote = char;
+      cursor++;
+      continue;
+    }
+
+    if (char === "{") depth++;
+    if (char === "}") depth--;
+    cursor++;
+  }
+
+  return cursor;
+}
+
 export function mergeCustomCss(existingCss: string, selector: string, newProps: CssProperties): string {
   const rules = parseRules(existingCss);
-  const existingIdx = rules.findIndex((r) => r.selector === selector);
+  const matchingIndexes = rules
+    .map((rule, index) => (rule.selector === selector ? index : -1))
+    .filter((index) => index !== -1);
+  const existingIdx = matchingIndexes.at(-1) ?? -1;
 
   if (existingIdx !== -1) {
-    const merged = { ...rules[existingIdx].properties, ...newProps };
+    const mergedExisting = matchingIndexes.reduce<CssProperties>((acc, index) => {
+      return { ...acc, ...rules[index].properties };
+    }, {});
+    const merged = { ...mergedExisting, ...newProps };
     const cleaned: CssProperties = {};
     for (const [k, v] of Object.entries(merged)) {
       if (v.trim() !== "") cleaned[k] = v;
     }
     const newRule = generateCssRule(selector, cleaned);
     if (!newRule) {
-      rules.splice(existingIdx, 1);
+      for (const index of [...matchingIndexes].reverse()) {
+        rules.splice(index, 1);
+      }
       return rules.map((r) => r.raw).join("\n\n");
     }
     rules[existingIdx] = { selector, properties: cleaned, raw: newRule };
+    for (const index of matchingIndexes.slice(0, -1).reverse()) {
+      rules.splice(index, 1);
+    }
     return rules.map((r) => r.raw).join("\n\n");
   }
 
@@ -150,8 +265,8 @@ export function mergeCustomCss(existingCss: string, selector: string, newProps: 
 
 export function getExistingProperties(css: string, selector: string): CssProperties {
   const rules = parseRules(css);
-  const rule = rules.find((r) => r.selector === selector);
-  return rule ? { ...rule.properties } : {};
+  const matchingRules = rules.filter((r) => r.selector === selector);
+  return matchingRules.reduce<CssProperties>((acc, rule) => ({ ...acc, ...rule.properties }), {});
 }
 
 export function removeCustomCssRule(css: string, selector: string): string {

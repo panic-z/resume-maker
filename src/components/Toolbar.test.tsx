@@ -41,6 +41,10 @@ function renderToolbar(overrides: Partial<ComponentProps<typeof Toolbar>> = {}) 
         lineHeight: 1.6,
         pagePadding: 20,
         accentColor: "#000000",
+        backgroundMode: "preset",
+        backgroundPreset: "plain",
+        customGradient: null,
+        customImage: null,
       }}
       onStyleChange={vi.fn()}
       onStyleReset={vi.fn()}
@@ -90,6 +94,16 @@ describe("Toolbar style drawer", () => {
 
     expect(screen.getByRole("dialog", { name: "样式" })).toBeInTheDocument();
     expect(screen.getByText("字体")).toBeInTheDocument();
+  });
+
+  test("shows background preset controls in the style drawer", () => {
+    renderToolbar();
+
+    fireEvent.click(screen.getByRole("button", { name: "样式" }));
+
+    expect(screen.getByText("背景")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "纯白" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "角框" })).toBeInTheDocument();
   });
 
   test("closes the style drawer from its close button", () => {

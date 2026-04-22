@@ -166,7 +166,7 @@ export function Toolbar({
 
   return (
     <div>
-      <div className={`relative z-50 border-b border-gray-200 bg-white ${compact ? "px-3 py-2.5" : "px-4 py-3"}`}>
+      <div className={`relative border-b border-gray-200 bg-white ${compact ? "px-3 py-2.5" : "px-4 py-3"}`}>
         <div className={compact ? "grid grid-cols-2 items-end gap-x-3 gap-y-2" : "flex flex-wrap items-start gap-3"}>
           <div className="flex min-w-0 flex-col gap-1">
             <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-gray-400">

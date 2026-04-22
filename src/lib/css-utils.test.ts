@@ -17,6 +17,22 @@ describe("mergeCustomCss", () => {
       "@media print {\n  .resume-name {\n    color: red;\n  }\n}\n\n.resume-contact {\n  color: green;\n}",
     );
   });
+
+  test("merges duplicate selector blocks into a single updated rule", () => {
+    const css = ".resume-name {\n  color: red;\n}\n\n.resume-name {\n  font-size: 18px;\n}";
+
+    expect(mergeCustomCss(css, ".resume-name", { "font-weight": "700" })).toBe(
+      '.resume-name {\n  color: red;\n  font-size: 18px;\n  font-weight: 700;\n}',
+    );
+  });
+
+  test("preserves cascade order relative to intervening rules when deduplicating selectors", () => {
+    const css = ".resume-name {\n  color: red;\n}\n\nh1 {\n  color: blue;\n}\n\n.resume-name {\n  font-size: 18px;\n}";
+
+    expect(mergeCustomCss(css, ".resume-name", { "font-weight": "700" })).toBe(
+      'h1 {\n  color: blue;\n}\n\n.resume-name {\n  color: red;\n  font-size: 18px;\n  font-weight: 700;\n}',
+    );
+  });
 });
 
 describe("getExistingProperties", () => {
@@ -37,6 +53,15 @@ describe("getExistingProperties", () => {
       color: "red",
     });
   });
+
+  test("ignores CSS comments when reading declarations", () => {
+    const css = ".resume-name {\n  /* keep this readable */\n  color: red;\n  margin-top: 1em;\n}";
+
+    expect(getExistingProperties(css, ".resume-name")).toEqual({
+      color: "red",
+      "margin-top": "1em",
+    });
+  });
 });
 
 describe("mergeCustomCss with quoted values", () => {
@@ -54,5 +79,14 @@ describe("mergeCustomCss with quoted values", () => {
     expect(mergeCustomCss(css, ".resume-name::after", { content: '"}"', color: "red" })).toBe(
       '.resume-name::after {\n  content: "}";\n  color: red;\n}',
     );
+  });
+
+  test("preserves declarations that follow braces inside quoted values", () => {
+    const css = '.resume-name::after {\n  content: "}";\n  color: red;\n}';
+
+    expect(getExistingProperties(css, ".resume-name::after")).toEqual({
+      content: '"}"',
+      color: "red",
+    });
   });
 });

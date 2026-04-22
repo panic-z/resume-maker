@@ -1,4 +1,5 @@
-const PAGE_WIDTH_PX = 794;
+export const PAGE_WIDTH_PX = 794;
+export const PAGE_HEIGHT_PX = 1123;
 
 export function getPreviewScale(containerWidth: number) {
   const gutter = containerWidth <= 340 ? 64 : 32;
