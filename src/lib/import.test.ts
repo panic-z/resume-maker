@@ -1,9 +1,25 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   parseImportedMarkdown,
   parseImportedProjectJson,
   convertPdfTextToMarkdown,
+  parseImportedPdf,
 } from "./import";
+
+const { getDocumentMock } = vi.hoisted(() => ({
+  getDocumentMock: vi.fn(),
+}));
+
+vi.mock("pdfjs-dist", () => ({
+  getDocument: getDocumentMock,
+  GlobalWorkerOptions: {
+    workerSrc: "",
+  },
+}));
+
+beforeEach(() => {
+  getDocumentMock.mockReset();
+});
 
 describe("parseImportedMarkdown", () => {
   it("returns UTF-8 markdown text unchanged except for normalizing line endings", async () => {
@@ -52,5 +68,65 @@ describe("convertPdfTextToMarkdown", () => {
     } catch (error) {
       expect(error).toMatchObject({ code: "pdf-empty" });
     }
+  });
+});
+
+describe("parseImportedPdf", () => {
+  it("extracts PDF text with pdf.js and converts it to markdown", async () => {
+    getDocumentMock.mockReturnValue({
+      promise: Promise.resolve({
+        numPages: 2,
+        getPage: vi
+          .fn()
+          .mockResolvedValueOnce({
+            getTextContent: vi.fn().mockResolvedValue({
+              items: [
+                { str: "Jane Doe", hasEOL: true },
+                { str: "jane@example.com", hasEOL: true },
+              ],
+            }),
+          })
+          .mockResolvedValueOnce({
+            getTextContent: vi.fn().mockResolvedValue({
+              items: [
+                { str: "Experience", hasEOL: true },
+                { str: "Built things", hasEOL: true },
+              ],
+            }),
+          }),
+      }),
+    });
+
+    const file = new File([new Uint8Array([1, 2, 3])], "resume.pdf", { type: "application/pdf" });
+
+    await expect(parseImportedPdf(file)).resolves.toBe("# Jane Doe\n\njane@example.com\n\n## Experience\n\nBuilt things");
+    expect(getDocumentMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("preserves pdf-empty when extracted text is blank", async () => {
+    getDocumentMock.mockReturnValue({
+      promise: Promise.resolve({
+        numPages: 1,
+        getPage: vi.fn().mockResolvedValue({
+          getTextContent: vi.fn().mockResolvedValue({
+            items: [{ str: "   ", hasEOL: true }],
+          }),
+        }),
+      }),
+    });
+
+    const file = new File([new Uint8Array([4, 5, 6])], "empty.pdf", { type: "application/pdf" });
+
+    await expect(parseImportedPdf(file)).rejects.toMatchObject({ code: "pdf-empty" });
+  });
+
+  it("maps unexpected pdf.js failures to pdf-parse-failed", async () => {
+    getDocumentMock.mockImplementation(() => {
+      throw new Error("boom");
+    });
+
+    const file = new File([new Uint8Array([7, 8, 9])], "broken.pdf", { type: "application/pdf" });
+
+    await expect(parseImportedPdf(file)).rejects.toMatchObject({ code: "pdf-parse-failed" });
   });
 });

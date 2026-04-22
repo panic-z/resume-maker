@@ -1,3 +1,4 @@
+import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import type { Language } from "./i18n";
 import {
   normalizeImportedProject,
@@ -30,6 +31,49 @@ export class ResumeImportError extends Error {
     this.name = "ResumeImportError";
     this.code = code;
   }
+}
+
+const PDF_WORKER_SRC = new URL("pdfjs-dist/build/pdf.worker.mjs", import.meta.url).toString();
+
+function ensurePdfWorker() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (!GlobalWorkerOptions.workerSrc) {
+    GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
+  }
+}
+
+function extractTextFromPdfItems(items: unknown[]): string {
+  const lines: string[] = [];
+  let currentLine: string[] = [];
+
+  for (const item of items) {
+    if (!item || typeof item !== "object" || !("str" in item) || typeof item.str !== "string") {
+      continue;
+    }
+
+    const segment = item.str.trim();
+    if (segment) {
+      currentLine.push(segment);
+    }
+
+    if ("hasEOL" in item && item.hasEOL) {
+      const line = currentLine.join(" ").trim();
+      if (line) {
+        lines.push(line);
+      }
+      currentLine = [];
+    }
+  }
+
+  const trailingLine = currentLine.join(" ").trim();
+  if (trailingLine) {
+    lines.push(trailingLine);
+  }
+
+  return lines.join("\n");
 }
 
 export async function parseImportedMarkdown(markdown: string): Promise<string> {
@@ -96,4 +140,28 @@ export function convertPdfTextToMarkdown(text: string): string {
     })
     .filter(Boolean)
     .join("\n\n");
+}
+
+export async function parseImportedPdf(file: File): Promise<string> {
+  try {
+    ensurePdfWorker();
+
+    const data = new Uint8Array(await file.arrayBuffer());
+    const pdf = await getDocument({ data }).promise;
+    const pageTexts: string[] = [];
+
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+      const page = await pdf.getPage(pageNumber);
+      const textContent = await page.getTextContent();
+      pageTexts.push(extractTextFromPdfItems(textContent.items));
+    }
+
+    return convertPdfTextToMarkdown(pageTexts.join("\n\n"));
+  } catch (error) {
+    if (error instanceof ResumeImportError) {
+      throw error;
+    }
+
+    throw new ResumeImportError("pdf-parse-failed");
+  }
 }
