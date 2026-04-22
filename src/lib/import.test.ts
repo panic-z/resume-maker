@@ -1,9 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   parseImportedMarkdown,
   parseImportedProjectJson,
   convertPdfTextToMarkdown,
-  type ImportedProjectState,
 } from "./import";
 
 describe("parseImportedMarkdown", () => {
@@ -29,7 +28,11 @@ describe("parseImportedProjectJson", () => {
       template: "modern",
       customCss: ".resume-name { color: red; }",
       language: "en",
-    } satisfies Partial<ImportedProjectState>);
+      style: {
+        fontSize: 14,
+        backgroundPreset: "plain",
+      },
+    });
   });
 
   it("throws invalid-project when the snapshot cannot be normalized", async () => {
@@ -43,6 +46,11 @@ describe("convertPdfTextToMarkdown", () => {
   });
 
   it("throws pdf-empty when extraction is blank", () => {
-    expect(() => convertPdfTextToMarkdown("   \n\n")).toThrowError();
+    try {
+      convertPdfTextToMarkdown("   \n\n");
+      throw new Error("expected pdf-empty");
+    } catch (error) {
+      expect(error).toMatchObject({ code: "pdf-empty" });
+    }
   });
 });

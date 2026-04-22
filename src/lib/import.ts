@@ -1,9 +1,12 @@
+import type { Language } from "./i18n";
+import type { StyleSettings, TemplateName } from "./storage";
+
 export interface ImportedProjectState {
   markdown: string;
-  template: "classic" | "modern" | "minimal" | "professional" | "creative";
-  style: Record<string, unknown>;
+  template: TemplateName;
+  style: StyleSettings;
   customCss: string;
-  language: "zh" | "en";
+  language: Language;
 }
 
 export async function parseImportedMarkdown(markdown: string): Promise<string> {
