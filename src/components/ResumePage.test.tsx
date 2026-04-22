@@ -7,6 +7,8 @@ const changeTemplateSpy = vi.fn();
 const changeStyleSpy = vi.fn();
 const resetStyleSpy = vi.fn();
 const setCustomCssSpy = vi.fn();
+const importMarkdownSpy = vi.fn();
+const importProjectSpy = vi.fn();
 
 vi.mock("../hooks/useResume", () => ({
   useResume: () => ({
@@ -25,6 +27,8 @@ vi.mock("../hooks/useResume", () => ({
     resetStyle: resetStyleSpy,
     customCss: ".resume-name {\n  color: #ff0000;\n}",
     setCustomCss: setCustomCssSpy,
+    importMarkdown: importMarkdownSpy,
+    importProject: importProjectSpy,
   }),
 }));
 
@@ -109,6 +113,8 @@ describe("ResumePage responsive layout", () => {
     changeStyleSpy.mockReset();
     resetStyleSpy.mockReset();
     setCustomCssSpy.mockReset();
+    importMarkdownSpy.mockReset();
+    importProjectSpy.mockReset();
     setViewportWidth(1280);
   });
 

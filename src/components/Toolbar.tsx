@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import type { ChangeEvent } from "react";
 import { Download, ChevronDown, Settings2, Code2, MousePointerClick } from "lucide-react";
-import type { TemplateName, StyleSettings } from "../lib/storage";
+import type { PersistedResumeProject, TemplateName, StyleSettings } from "../lib/storage";
 import { StylePanel } from "./StylePanel";
 import { messages, type Language } from "../lib/i18n";
+import { parseImportedMarkdown, parseImportedPdf, parseImportedProjectJson } from "../lib/import";
 
 export type EditorTab = "markdown" | "css";
 
@@ -14,9 +15,8 @@ interface ToolbarProps {
   onExportPdf: () => void;
   onExportHtml: () => void;
   onExportMarkdown: () => void;
-  onImportMarkdown: (file: File) => void;
-  onImportProject: (file: File) => void;
-  onImportPdf?: (file: File) => void;
+  onImportMarkdown: (markdown: string) => void;
+  onImportProject: (project: PersistedResumeProject) => void;
   style: StyleSettings;
   onStyleChange: (patch: Partial<StyleSettings>) => void;
   onStyleReset: () => void;
@@ -38,7 +38,6 @@ export function Toolbar({
   onExportMarkdown,
   onImportMarkdown,
   onImportProject,
-  onImportPdf,
   style,
   onStyleChange,
   onStyleReset,
@@ -51,6 +50,7 @@ export function Toolbar({
   onWorkspaceViewChange,
 }: ToolbarProps) {
   const [importOpen, setImportOpen] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [styleOpen, setStyleOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -78,14 +78,90 @@ export function Toolbar({
     return () => document.removeEventListener("pointerdown", handleClickOutside);
   }, []);
 
-  function handleFileSelect(
-    event: ChangeEvent<HTMLInputElement>,
-    onSelect: (file: File) => void,
-  ) {
+  function importErrorMessage(error: unknown): string {
+    const code = typeof error === "object" && error && "code" in error ? error.code : undefined;
+
+    switch (code) {
+      case "unsupported-type":
+        return copy.toolbar.import.errors.unsupportedType;
+      case "read-failed":
+        return copy.toolbar.import.errors.readFailed;
+      case "invalid-json":
+        return copy.toolbar.import.errors.invalidJson;
+      case "invalid-project":
+        return copy.toolbar.import.errors.invalidProject;
+      case "pdf-empty":
+        return copy.toolbar.import.errors.pdfEmpty;
+      case "pdf-parse-failed":
+        return copy.toolbar.import.errors.pdfParseFailed;
+      default:
+        return copy.toolbar.import.errors.readFailed;
+    }
+  }
+
+  async function handleMarkdownImport(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-    onSelect(file);
-    event.target.value = "";
+
+    try {
+      if (!window.confirm(copy.toolbar.import.confirmMarkdown)) {
+        return;
+      }
+
+      const text = await file.text();
+      const markdown = await parseImportedMarkdown(text);
+      onImportMarkdown(markdown);
+      setImportOpen(false);
+      setExportOpen(false);
+      setImportError(null);
+    } catch (error) {
+      setImportError(importErrorMessage(error));
+    } finally {
+      event.target.value = "";
+    }
+  }
+
+  async function handleProjectImport(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      if (!window.confirm(copy.toolbar.import.confirmProject)) {
+        return;
+      }
+
+      const text = await file.text();
+      const project = await parseImportedProjectJson(text);
+      onImportProject(project);
+      setImportOpen(false);
+      setExportOpen(false);
+      setImportError(null);
+    } catch (error) {
+      setImportError(importErrorMessage(error));
+    } finally {
+      event.target.value = "";
+    }
+  }
+
+  async function handlePdfImport(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      if (!window.confirm(copy.toolbar.import.confirmPdf)) {
+        return;
+      }
+
+      const markdown = await parseImportedPdf(file);
+      onImportMarkdown(markdown);
+      setImportOpen(false);
+      setExportOpen(false);
+      setImportError(null);
+    } catch (error) {
+      setImportError(importErrorMessage(error));
+    } finally {
+      event.target.value = "";
+    }
   }
 
   return (
@@ -218,7 +294,7 @@ export function Toolbar({
                 tabIndex={-1}
                 data-testid="import-markdown-input"
                 aria-label={copy.toolbar.import.markdownInput}
-                onChange={(event) => handleFileSelect(event, onImportMarkdown)}
+                onChange={handleMarkdownImport}
               />
               <input
                 ref={jsonImportRef}
@@ -227,7 +303,7 @@ export function Toolbar({
                 className="hidden"
                 tabIndex={-1}
                 aria-label={copy.toolbar.import.projectJsonInput}
-                onChange={(event) => handleFileSelect(event, onImportProject)}
+                onChange={handleProjectImport}
               />
               <input
                 ref={pdfImportRef}
@@ -236,12 +312,13 @@ export function Toolbar({
                 className="hidden"
                 tabIndex={-1}
                 aria-label={copy.toolbar.import.pdfInput}
-                onChange={(event) => handleFileSelect(event, (file) => onImportPdf?.(file))}
+                onChange={handlePdfImport}
               />
               {importOpen && (
                 <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded shadow-lg z-10">
                   <button
                     onClick={() => {
+                      setImportError(null);
                       markdownImportRef.current?.click();
                       setImportOpen(false);
                     }}
@@ -251,6 +328,7 @@ export function Toolbar({
                   </button>
                   <button
                     onClick={() => {
+                      setImportError(null);
                       jsonImportRef.current?.click();
                       setImportOpen(false);
                     }}
@@ -260,6 +338,7 @@ export function Toolbar({
                   </button>
                   <button
                     onClick={() => {
+                      setImportError(null);
                       pdfImportRef.current?.click();
                       setImportOpen(false);
                     }}
@@ -309,6 +388,12 @@ export function Toolbar({
           </div>
         </div>
       </div>
+
+      {importError && (
+        <div className="border-b border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700" role="alert">
+          {importError}
+        </div>
+      )}
 
       {styleOpen && (
         <StylePanel

@@ -23,6 +23,8 @@ export function ResumePage({ language }: ResumePageProps) {
     template, changeTemplate,
     style, changeStyle, resetStyle,
     customCss, setCustomCss,
+    importMarkdown,
+    importProject,
   } = useResume(language);
 
   const [splitPercent, setSplitPercent] = useState(50);
@@ -106,18 +108,6 @@ export function ResumePage({ language }: ResumePageProps) {
     exportMarkdown(markdown);
   }, [markdown]);
 
-  const handleImportMarkdown = useCallback((_file: File) => {
-    // Task 5 only wires the picker shell; parsing is implemented in follow-up tasks.
-  }, []);
-
-  const handleImportProject = useCallback((_file: File) => {
-    // Task 5 only wires the picker shell; parsing is implemented in follow-up tasks.
-  }, []);
-
-  const handleImportPdf = useCallback((_file: File) => {
-    // Task 5 only wires the picker shell; parsing is implemented in follow-up tasks.
-  }, []);
-
   const handleEditModeChange = useCallback((v: boolean) => {
     setEditMode(v);
     if (!v) setSelectedElement(null);
@@ -156,9 +146,8 @@ export function ResumePage({ language }: ResumePageProps) {
         onExportPdf={handleExportPdf}
         onExportHtml={handleExportHtml}
         onExportMarkdown={handleExportMd}
-        onImportMarkdown={handleImportMarkdown}
-        onImportProject={handleImportProject}
-        onImportPdf={handleImportPdf}
+        onImportMarkdown={importMarkdown}
+        onImportProject={importProject}
         style={style}
         onStyleChange={changeStyle}
         onStyleReset={handleStyleReset}

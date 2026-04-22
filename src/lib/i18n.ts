@@ -28,6 +28,17 @@ type Messages = {
       markdownInput: string;
       projectJsonInput: string;
       pdfInput: string;
+      confirmMarkdown: string;
+      confirmProject: string;
+      confirmPdf: string;
+      errors: {
+        unsupportedType: string;
+        readFailed: string;
+        invalidJson: string;
+        invalidProject: string;
+        pdfParseFailed: string;
+        pdfEmpty: string;
+      };
     };
     export: string;
     templates: Record<"classic" | "modern" | "minimal" | "professional" | "creative", string>;
@@ -114,6 +125,17 @@ export const messages: Record<Language, Messages> = {
         markdownInput: "导入 Markdown 文件",
         projectJsonInput: "导入 JSON 项目文件",
         pdfInput: "导入 PDF 文件",
+        confirmMarkdown: "导入 Markdown 会替换当前简历内容，是否继续？",
+        confirmProject: "导入项目会替换当前简历、模板和样式，是否继续？",
+        confirmPdf: "导入 PDF 会尝试转换为 Markdown 并替换当前简历内容，是否继续？",
+        errors: {
+          unsupportedType: "暂不支持该文件类型",
+          readFailed: "文件读取失败，请重试",
+          invalidJson: "JSON 文件格式无效，请检查后重试",
+          invalidProject: "项目文件无效，请确认它来自 Resume Maker 导出",
+          pdfParseFailed: "PDF 解析失败，请检查文件后重试",
+          pdfEmpty: "未能从 PDF 中提取到内容，请尝试导入 Markdown 或 JSON 项目文件",
+        },
       },
       export: "导出",
       templates: {
@@ -227,6 +249,17 @@ export const messages: Record<Language, Messages> = {
         markdownInput: "Import Markdown file",
         projectJsonInput: "Import project JSON file",
         pdfInput: "Import PDF file",
+        confirmMarkdown: "Importing Markdown will replace the current resume content. Continue?",
+        confirmProject: "Importing a project will replace the current resume, template, and styles. Continue?",
+        confirmPdf: "Importing a PDF will try to convert it to Markdown and replace the current resume content. Continue?",
+        errors: {
+          unsupportedType: "This file type is not supported yet",
+          readFailed: "Failed to read the file. Please try again.",
+          invalidJson: "The JSON file is invalid. Please check it and try again.",
+          invalidProject: "The project file is invalid. Confirm it was exported from Resume Maker.",
+          pdfParseFailed: "Failed to parse the PDF. Please check the file and try again.",
+          pdfEmpty: "No content could be extracted from the PDF. Try importing Markdown or a project JSON file instead.",
+        },
       },
       export: "Export",
       templates: {
