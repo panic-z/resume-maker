@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import type { ChangeEvent } from "react";
 import { Download, ChevronDown, Settings2, Code2, MousePointerClick } from "lucide-react";
 import type { TemplateName, StyleSettings } from "../lib/storage";
 import { StylePanel } from "./StylePanel";
@@ -13,6 +14,9 @@ interface ToolbarProps {
   onExportPdf: () => void;
   onExportHtml: () => void;
   onExportMarkdown: () => void;
+  onImportMarkdown: (file: File) => void;
+  onImportProject: (file: File) => void;
+  onImportPdf?: (file: File) => void;
   style: StyleSettings;
   onStyleChange: (patch: Partial<StyleSettings>) => void;
   onStyleReset: () => void;
@@ -32,6 +36,9 @@ export function Toolbar({
   onExportPdf,
   onExportHtml,
   onExportMarkdown,
+  onImportMarkdown,
+  onImportProject,
+  onImportPdf,
   style,
   onStyleChange,
   onStyleReset,
@@ -43,10 +50,14 @@ export function Toolbar({
   workspaceView,
   onWorkspaceViewChange,
 }: ToolbarProps) {
+  const [importOpen, setImportOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [styleOpen, setStyleOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const styleButtonRef = useRef<HTMLButtonElement>(null);
+  const markdownImportRef = useRef<HTMLInputElement>(null);
+  const jsonImportRef = useRef<HTMLInputElement>(null);
+  const pdfImportRef = useRef<HTMLInputElement>(null);
   const copy = messages[language];
   const templates: { value: TemplateName; label: string }[] = [
     { value: "classic", label: copy.toolbar.templates.classic },
@@ -58,13 +69,24 @@ export function Toolbar({
 
   useEffect(() => {
     function handleClickOutside(e: PointerEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setImportOpen(false);
         setExportOpen(false);
       }
     }
     document.addEventListener("pointerdown", handleClickOutside);
     return () => document.removeEventListener("pointerdown", handleClickOutside);
   }, []);
+
+  function handleFileSelect(
+    event: ChangeEvent<HTMLInputElement>,
+    onSelect: (file: File) => void,
+  ) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    onSelect(file);
+    event.target.value = "";
+  }
 
   return (
     <div>
@@ -176,37 +198,114 @@ export function Toolbar({
             </div>
           )}
 
-          <div className={`relative ${compact ? "col-span-2" : "ml-auto self-end"}`} ref={dropdownRef}>
-          <button
-            onClick={() => setExportOpen(!exportOpen)}
-            className={`flex items-center justify-center gap-1.5 ${compact ? "w-full px-3 py-2.5" : "px-3 py-2"} text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors`}
-          >
-            <Download size={14} />
-            {copy.toolbar.export}
-            <ChevronDown size={12} />
-          </button>
-          {exportOpen && (
-            <div className="absolute right-0 mt-1 w-36 bg-white border border-gray-200 rounded shadow-lg z-10">
+          <div className={`flex gap-2 ${compact ? "col-span-2" : "ml-auto self-end"}`} ref={menuRef}>
+            <div className="relative">
               <button
-                onClick={() => { onExportPdf(); setExportOpen(false); }}
-                className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                onClick={() => {
+                  setImportOpen((open) => !open);
+                  setExportOpen(false);
+                }}
+                className={`flex items-center justify-center gap-1.5 ${compact ? "px-3 py-2.5" : "px-3 py-2"} text-xs rounded-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-colors`}
               >
-                PDF
+                {copy.toolbar.import.trigger}
+                <ChevronDown size={12} />
               </button>
-              <button
-                onClick={() => { onExportHtml(); setExportOpen(false); }}
-                className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
-              >
-                HTML
-              </button>
-              <button
-                onClick={() => { onExportMarkdown(); setExportOpen(false); }}
-                className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
-              >
-                Markdown
-              </button>
+              <input
+                ref={markdownImportRef}
+                type="file"
+                accept=".md,.markdown,text/markdown,text/plain"
+                className="hidden"
+                tabIndex={-1}
+                data-testid="import-markdown-input"
+                aria-label={copy.toolbar.import.markdownInput}
+                onChange={(event) => handleFileSelect(event, onImportMarkdown)}
+              />
+              <input
+                ref={jsonImportRef}
+                type="file"
+                accept=".json,application/json"
+                className="hidden"
+                tabIndex={-1}
+                aria-label={copy.toolbar.import.projectJsonInput}
+                onChange={(event) => handleFileSelect(event, onImportProject)}
+              />
+              <input
+                ref={pdfImportRef}
+                type="file"
+                accept=".pdf,application/pdf"
+                className="hidden"
+                tabIndex={-1}
+                aria-label={copy.toolbar.import.pdfInput}
+                onChange={(event) => handleFileSelect(event, (file) => onImportPdf?.(file))}
+              />
+              {importOpen && (
+                <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded shadow-lg z-10">
+                  <button
+                    onClick={() => {
+                      markdownImportRef.current?.click();
+                      setImportOpen(false);
+                    }}
+                    className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                  >
+                    {copy.toolbar.import.markdown}
+                  </button>
+                  <button
+                    onClick={() => {
+                      jsonImportRef.current?.click();
+                      setImportOpen(false);
+                    }}
+                    className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                  >
+                    {copy.toolbar.import.projectJson}
+                  </button>
+                  <button
+                    onClick={() => {
+                      pdfImportRef.current?.click();
+                      setImportOpen(false);
+                    }}
+                    className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                  >
+                    {copy.toolbar.import.pdf}
+                  </button>
+                </div>
+              )}
             </div>
-          )}
+
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setExportOpen((open) => !open);
+                  setImportOpen(false);
+                }}
+                className={`flex items-center justify-center gap-1.5 ${compact ? "w-full px-3 py-2.5" : "px-3 py-2"} text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors`}
+              >
+                <Download size={14} />
+                {copy.toolbar.export}
+                <ChevronDown size={12} />
+              </button>
+              {exportOpen && (
+                <div className="absolute right-0 mt-1 w-36 bg-white border border-gray-200 rounded shadow-lg z-10">
+                  <button
+                    onClick={() => { onExportPdf(); setExportOpen(false); }}
+                    className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                  >
+                    PDF
+                  </button>
+                  <button
+                    onClick={() => { onExportHtml(); setExportOpen(false); }}
+                    className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                  >
+                    HTML
+                  </button>
+                  <button
+                    onClick={() => { onExportMarkdown(); setExportOpen(false); }}
+                    className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                  >
+                    Markdown
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

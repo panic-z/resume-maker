@@ -20,6 +20,15 @@ type Messages = {
     markdown: string;
     style: string;
     visual: string;
+    import: {
+      trigger: string;
+      markdown: string;
+      projectJson: string;
+      pdf: string;
+      markdownInput: string;
+      projectJsonInput: string;
+      pdfInput: string;
+    };
     export: string;
     templates: Record<"classic" | "modern" | "minimal" | "professional" | "creative", string>;
   };
@@ -97,6 +106,15 @@ export const messages: Record<Language, Messages> = {
       markdown: "Markdown",
       style: "样式",
       visual: "可视化",
+      import: {
+        trigger: "导入",
+        markdown: "Markdown",
+        projectJson: "JSON 项目",
+        pdf: "PDF（实验）",
+        markdownInput: "导入 Markdown 文件",
+        projectJsonInput: "导入 JSON 项目文件",
+        pdfInput: "导入 PDF 文件",
+      },
       export: "导出",
       templates: {
         classic: "经典",
@@ -201,6 +219,15 @@ export const messages: Record<Language, Messages> = {
       markdown: "Markdown",
       style: "Style",
       visual: "Visual",
+      import: {
+        trigger: "Import",
+        markdown: "Markdown",
+        projectJson: "Project JSON",
+        pdf: "PDF (Experimental)",
+        markdownInput: "Import Markdown file",
+        projectJsonInput: "Import project JSON file",
+        pdfInput: "Import PDF file",
+      },
       export: "Export",
       templates: {
         classic: "Classic",

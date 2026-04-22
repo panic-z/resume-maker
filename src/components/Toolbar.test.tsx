@@ -28,6 +28,8 @@ function renderToolbar() {
       compact={false}
       workspaceView="editor"
       onWorkspaceViewChange={vi.fn()}
+      onImportMarkdown={vi.fn()}
+      onImportProject={vi.fn()}
     />,
   );
 }
@@ -91,5 +93,37 @@ describe("Toolbar style drawer", () => {
     fireEvent.pointerDown(document.body);
 
     expect(screen.queryByRole("button", { name: "PDF" })).not.toBeInTheDocument();
+  });
+
+  test("opens the import menu with markdown, json, and pdf options", () => {
+    renderToolbar();
+
+    fireEvent.click(screen.getByRole("button", { name: "导入" }));
+
+    expect(screen.getByRole("button", { name: "Markdown" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "JSON 项目" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "PDF（实验）" })).toBeInTheDocument();
+  });
+
+  test("calls the markdown import file picker when markdown import is clicked", () => {
+    renderToolbar();
+
+    fireEvent.click(screen.getByRole("button", { name: "导入" }));
+
+    const input = screen.getByTestId("import-markdown-input");
+    const clickSpy = vi.spyOn(input, "click");
+
+    fireEvent.click(screen.getByRole("button", { name: "Markdown" }));
+
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test("closes the import menu after triggering markdown import", () => {
+    renderToolbar();
+
+    fireEvent.click(screen.getByRole("button", { name: "导入" }));
+    fireEvent.click(screen.getByRole("button", { name: "Markdown" }));
+
+    expect(screen.queryByRole("button", { name: "JSON 项目" })).not.toBeInTheDocument();
   });
 });
