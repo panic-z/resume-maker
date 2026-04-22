@@ -1,5 +1,36 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { readFileSync } from "fs";
+
+const IMPORT_TEXT_PDF_BASE64 =
+  "JVBERi0xLjQKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXSAvUmVzb3VyY2VzIDw8IC9Gb250IDw8IC9GMSA0IDAgUiA+PiA+PiAvQ29udGVudHMgNSAwIFIgPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQgL1N1YnR5cGUgL1R5cGUxIC9CYXNlRm9udCAvSGVsdmV0aWNhID4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggMTM3ID4+CnN0cmVhbQpCVAovRjEgMTggVGYKNzIgNzQwIFRkCihKYW5lIERvZSkgVGoKMCAtMjQgVGQKKGphbmVAZXhhbXBsZS5jb20pIFRqCjAgLTI0IFRkCigpIFRqCjAgLTI0IFRkCihFeHBlcmllbmNlKSBUagowIC0yNCBUZAooQnVpbHQgdGhpbmdzKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAwOSAwMDAwMCBuIAowMDAwMDAwMDU4IDAwMDAwIG4gCjAwMDAwMDAxMTUgMDAwMDAgbiAKMDAwMDAwMDI0MSAwMDAwMCBuIAowMDAwMDAwMzExIDAwMDAwIG4gCnRyYWlsZXIKPDwgL1NpemUgNiAvUm9vdCAxIDAgUiA+PgpzdGFydHhyZWYKNDk5CiUlRU9GCg==";
+
+async function importFileThroughToolbar(
+  page: Page,
+  {
+    menuItem,
+    inputLabel,
+    confirmMessage,
+    file,
+  }: {
+    menuItem: string;
+    inputLabel: string;
+    confirmMessage: string;
+    file: {
+      name: string;
+      mimeType: string;
+      buffer: Buffer;
+    };
+  }
+) {
+  await page.getByRole("button", { name: "导入", exact: true }).click();
+  await expect(page.getByRole("button", { name: menuItem, exact: true }).last()).toBeVisible();
+
+  page.once("dialog", async (dialog) => {
+    expect(dialog.message()).toBe(confirmMessage);
+    await dialog.accept();
+  });
+  await page.getByLabel(inputLabel).setInputFiles(file);
+}
 
 test.describe("Resume Maker E2E", () => {
   test.beforeEach(async ({ page }) => {
@@ -105,6 +136,97 @@ test.describe("Resume Maker E2E", () => {
     expect(content).toContain("<!DOCTYPE html>");
     expect(content).toContain("template-classic");
     expect(content).toContain("resume-name");
+  });
+
+  test("导入：Markdown 文件会替换编辑器和预览内容", async ({ page }) => {
+    await importFileThroughToolbar(page, {
+      menuItem: "Markdown",
+      inputLabel: "导入 Markdown 文件",
+      confirmMessage: "导入 Markdown 会替换当前简历内容，是否继续？",
+      file: {
+        name: "imported-resume.md",
+        mimeType: "text/markdown",
+        buffer: Buffer.from("# Imported Person\n\n> imported@example.com\n\n## Experience\n\nBuilt a resilient import flow.\n"),
+      },
+    });
+
+    await expect(page.locator(".cm-editor")).toContainText("Imported Person");
+    await expect(page.locator(".cm-editor")).toContainText("imported@example.com");
+    await expect(page.locator(".resume-name")).toContainText("Imported Person");
+    await expect(page.locator(".resume-contact")).toContainText("imported@example.com");
+    await expect(page.locator(".resume-section-title")).toContainText("Experience");
+  });
+
+  test("导入：项目 JSON 会恢复模板、样式和内容", async ({ page }) => {
+    await page.click("button:text('现代')");
+    await page.getByRole("button", { name: "样式", exact: true }).click();
+    await page.locator("input[type='range']").nth(0).fill("18");
+
+    await importFileThroughToolbar(page, {
+      menuItem: "JSON 项目",
+      inputLabel: "导入 JSON 项目文件",
+      confirmMessage: "导入项目会替换当前简历、模板和样式，是否继续？",
+      file: {
+        name: "resume-project.json",
+        mimeType: "application/json",
+        buffer: Buffer.from(JSON.stringify({
+          markdown: "# Project Import\n\n> project@example.com\n\n## Skills\n\n- TypeScript",
+          template: "professional",
+          style: {
+            fontSize: 16,
+            lineHeight: 1.8,
+            accentColor: "#10b981",
+            fontFamily: "system",
+            pagePadding: 24,
+            backgroundMode: "preset",
+            backgroundPreset: "soft-arc",
+            customGradient: null,
+            customImage: null,
+          },
+          customCss: ".resume-name { letter-spacing: 0.08em; }",
+          language: "en",
+        })),
+      },
+    });
+
+    const preview = page.locator("[class*='template-professional']");
+
+    await expect(preview).toBeVisible();
+    await expect(page.locator(".cm-editor")).toContainText("Project Import");
+    await expect(page.locator(".resume-name")).toContainText("Project Import");
+    await expect(page.locator(".resume-contact")).toContainText("project@example.com");
+    await expect
+      .poll(async () => preview.evaluate((el) => getComputedStyle(el).getPropertyValue("--resume-font-size").trim()))
+      .toBe("16px");
+    await expect
+      .poll(async () => preview.evaluate((el) => getComputedStyle(el).getPropertyValue("--resume-accent").trim()))
+      .toBe("#10b981");
+    await expect
+      .poll(async () =>
+        preview.evaluate((el) => getComputedStyle(el).getPropertyValue("--resume-paper-overlay").trim())
+      )
+      .toContain("radial-gradient");
+  });
+
+  test("导入：文本 PDF 会转换为可编辑 Markdown 并更新预览", async ({ page }) => {
+    await importFileThroughToolbar(page, {
+      menuItem: "PDF（实验）",
+      inputLabel: "导入 PDF 文件",
+      confirmMessage: "导入 PDF 会尝试转换为 Markdown 并替换当前简历内容，是否继续？",
+      file: {
+        name: "resume.pdf",
+        mimeType: "application/pdf",
+        buffer: Buffer.from(IMPORT_TEXT_PDF_BASE64, "base64"),
+      },
+    });
+
+    await expect(page.locator(".cm-editor")).toContainText("Jane Doe");
+    await expect(page.locator(".cm-editor")).toContainText("jane@example.com");
+    await expect(page.locator(".cm-editor")).toContainText("Experience");
+    await expect(page.locator(".resume-name")).toContainText("Jane Doe");
+    await expect(page.locator("[class*='template-']")).toContainText("jane@example.com");
+    await expect(page.locator("[class*='template-']")).toContainText("Experience");
+    await expect(page.locator("[class*='template-']")).toContainText("Built things");
   });
 
   test("拖拽分隔线调整面板宽度", async ({ page }) => {
